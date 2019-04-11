@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Songs</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="collapsing_toolbar">Collapsing Toolbar</string>
+
+    <string name="f_profile_longLatin">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+
+The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.  </string>
+    <string name="now_playing_song_name">Song Name</string>
+    <string name="now_playing_artist_name">Artist Name</string>
+    <string name="f_artists_btn">Artists</string>
+    <string name="f_tracks_btn">Tracks</string>
+    <string name="f_albums_btn">Albums</string>
+
+    <string name="row_album_albumName">Album Name</string>
+    <string name="row_artist_artistName">Album Name</string>
+    <string name="row_track_trackName">Track Title</string>
+    <string name="row_track_artistName">Track Subtitle</string>
+    <string name="current_userName">User Name</string>
+    <string name="current_user_bio">NF is the stage name of rapper and composer Nate Feuerstein from Gladwin, Michigan.</string>
+
+
+</resources>

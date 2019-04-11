@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#651FFF</color>
+    <color name="colorPrimaryDark">#4615B2</color>
+    <color name="colorAccent">#FF6B6B</color>
+
+    <color name="bottomColor">#80e4e4e4</color>
+    <color name="transparentColor">#00ffffff</color>
+
+    <color name="trackStartColor">#01AC87</color>
+    <color name="albumFadedColor">#005AD2</color>
+    <color name="artistStartColor">#FF2767</color>
+    <color name="playlistFadedColor">#5800E3</color>
+
+    <color name="innerViewPagerBackground">#F7FAFF</color>
+
+    <color name="selectedTabColor">#E5DCDD</color>
+    <color name="selectedTabTextColor">#4A4A4A</color>
+    <color name="unselectedTabTextColor">#9B9293</color>
+    <color name="tabBackground">#E8E8E8</color>
+</resources>
