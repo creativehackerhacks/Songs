@@ -15,8 +15,11 @@ import android.os.PowerManager;
 import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 
+import com.example.songs.activity.MainActivity;
 import com.example.songs.data.model.Track;
 import com.example.songs.singleton.MediaPlayerSingleton;
+import com.example.songs.util.AudioWidget;
+import com.example.songs.util.Constants;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,6 +45,11 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     private int playingIndex;
     private int trackDuration;
 
+    private MainActivity mMainActivity;
+    private Intent mBroadcastIntent;
+
+    private AudioWidget mAudioWidget;
+
 
     private AudioAttributes attr = new AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -52,6 +60,11 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     public void onCreate() {
         super.onCreate();
         initMediaData();
+        initAudioWidget();
+    }
+
+    private void initAudioWidget() {
+        mBroadcastIntent = new Intent(Constants.PLAYBACK_STATE);
     }
 
     private void initMediaData() {
@@ -68,16 +81,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
-//    public void toggle() {
-//        if (MediaPlayerSingleton.getInstance().getMediaPlayer() == null) {
-//            return;
-//        }
-//        if (MediaPlayerSingleton.getInstance().getMediaPlayer().isPlaying()) {
-//            pause();
-//        } else {
-//            play();
-//        }
-//    }
+
 
     public void setTrackList(List<Track> trackList, int pos, boolean play) {
         smartPlayList(trackList);
@@ -154,7 +158,8 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     public void finalPlay() {
         paused = false;
         isRunning = true;
-        Log.d(TAG, "finalPlay: Play");
+        this.sendBroadcast(mBroadcastIntent);
+//        Log.d(TAG, "finalPlay: Play");
     }
 
     public void pause() {
@@ -168,6 +173,11 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     public void finalPause() {
         paused = true;
         isRunning = false;
+        this.sendBroadcast(mBroadcastIntent);
+    }
+
+    private void pauseDrawable() {
+
     }
 
     public void playNext(boolean torf) {
@@ -295,6 +305,17 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
         }
         Log.d(TAG, "onUnbind: Done");
         return false;
+    }
+
+    public void toggle() {
+        if(MediaPlayerSingleton.getInstance().getMediaPlayer() == null) {
+            return;
+        }
+        if(MediaPlayerSingleton.getInstance().getMediaPlayer().isPlaying()) {
+            pause();
+        } else {
+            play();
+        }
     }
 
     public class LocalSimpleMusicBinder extends Binder {

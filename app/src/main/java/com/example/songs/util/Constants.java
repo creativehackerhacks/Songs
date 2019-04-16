@@ -2,6 +2,8 @@ package com.example.songs.util;
 
 public class Constants {
 
+    private static final String PACKAGENAME = "com.example.songs.";
+
     /*
     Choices
      */
@@ -11,5 +13,7 @@ public class Constants {
     public static final String Three = "3";
     public static final String Four = "4";
     public static final String Five = "5";
+
+    public static final String PLAYBACK_STATE = PACKAGENAME + "PLAYBACK_STATE";
 
 }

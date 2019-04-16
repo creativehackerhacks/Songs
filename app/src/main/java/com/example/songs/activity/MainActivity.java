@@ -1,10 +1,13 @@
 package com.example.songs.activity;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,6 +28,7 @@ import com.example.songs.innerFragments.NowPlayingFragment;
 import com.example.songs.topFragment.ProfileFragment;
 import com.example.songs.topFragment.SettingsFragment;
 import com.example.songs.topFragment.SongsFragment;
+import com.example.songs.util.Constants;
 import com.example.songs.util.touchListeners.CustomSwipeTouchListener;
 import com.example.songs.service.SimpleMusicService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -45,6 +49,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -68,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
     private Button mPlayPauseBtn;
     private Track mSinglePlayScreenTrack;
 
+    private Drawable mPlayDrawable, mPauseDrawable;
+
     private FragNavTransactionOptions mFragNavTransactionOptions;
 
     /**
@@ -87,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
         mSongName = findViewById(R.id.a_m_min_player_songName);
         mPlayPauseBtn = findViewById(R.id.a_m_play_pause_toggle);
 
+        mPlayDrawable = ContextCompat.getDrawable(this, R.drawable.ic_play_light);
+        mPauseDrawable = ContextCompat.getDrawable(this, R.drawable.ic_pause_light);
 
         mFragmentList = new ArrayList<>(3);
         mFragNavController = new FragNavController(getSupportFragmentManager(), R.id.main_frame_layout);
@@ -119,22 +128,32 @@ public class MainActivity extends AppCompatActivity {
 
         mMinPlayer.setOnTouchListener(mCustomMinPlayerListener);
 
-        mPlayPauseBtn.setOnClickListener(new OnClickListener() {
-            @RequiresApi(api = VERSION_CODES.LOLLIPOP)
-            @Override
-            public void onClick(View v) {
-                Log.e(MAINACTIVITYTAG, "onClick: mMinPlayerClicked.");
-                if (mMediaPlayerService != null) {
-                    if (mMediaPlayerService.isPlaying()) {
-                        mMediaPlayerService.pause();
-                        mPlayPauseBtn.setBackground(getResources().getDrawable(R.drawable.ic_play_light, null));
-                    } else {
-                        mMediaPlayerService.play();
-                        mPlayPauseBtn.setBackground(getResources().getDrawable(R.drawable.ic_pause_light, null));
-                    }
-                }
+        mPlayPauseBtn.setOnClickListener(mPlayPauseToggle);
+    }
+
+    private View.OnClickListener mPlayPauseToggle = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(mMediaPlayerService == null) {
+                return;
             }
-        });
+            switch (v.getId()) {
+                case R.id.a_m_play_pause_toggle:
+                    mMediaPlayerService.toggle();
+                    break;
+            }
+        }
+    };
+
+
+    private void playPauseToggle() {
+        if(mMediaPlayerService != null) {
+            if(mMediaPlayerService.isPlaying()) {
+                mPlayPauseBtn.setBackground(mPauseDrawable);
+            } else {
+                mPlayPauseBtn.setBackground(mPlayDrawable);
+            }
+        }
     }
 
     private View.OnTouchListener mCustomMinPlayerListener = new CustomSwipeTouchListener() {
@@ -258,6 +277,16 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(mMediaPlayerService == null) {
+                return;
+            }
+            playPauseToggle();
+        }
+    };
+
 
     public void playAudio(List<Track> tracks, int pos) {
         if (mMediaPlayerService == null) {
@@ -326,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
             isServiceBound = false;
             mMediaPlayerService = null;
         }
+        unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
@@ -335,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, SimpleMusicService.class);
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
+        registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.PLAYBACK_STATE));
     }
 
 
