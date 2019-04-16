@@ -6,6 +6,7 @@
     android:id="@+id/a_m_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:artistContext=".activity.MainActivity">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -24,11 +25,11 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="44dp"
         android:id="@+id/a_m_min_player"
         android:layout_above="@+id/a_m_navigation"
         android:visibility="gone"
-        android:background="@color/primary">
+        android:background="@color/bottomNavBackgroundColor">
 
         <TextView
             android:layout_width="240dp"
@@ -56,13 +57,13 @@
         android:id="@+id/a_m_navigation"
         android:layout_width="match_parent"
         android:layout_height="44dp"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        android:background="?android:attr/windowBackground"
-        app:itemBackground="@drawable/bottomnavview_background_color"
-        app:itemTextColor="@android:color/black"
+        android:background="@color/bottomNavBackgroundColor"
+        app:itemIconTint="@color/bottomnavviewitem_background_color"
+        app:itemTextColor="@color/PrimaryTextColor"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_alignParentBottom="true"
         app:menu="@menu/bottom_nav_menu" />
 
 </RelativeLayout>

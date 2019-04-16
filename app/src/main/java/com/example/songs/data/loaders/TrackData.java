@@ -16,6 +16,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 
 public class TrackData extends BaseAsyncTaskLoader<List<Track>> {
     private String Where = null;
@@ -36,9 +37,7 @@ public class TrackData extends BaseAsyncTaskLoader<List<Track>> {
         super(context);
     }
 
-    @Nullable
-    @Override
-    public List<Track> loadInBackground() {
+    public List<Track> getTrackList() {
         List<Track> trackList = new ArrayList<>();
 
         Uri trackUri = Media.EXTERNAL_CONTENT_URI;
@@ -93,61 +92,7 @@ public class TrackData extends BaseAsyncTaskLoader<List<Track>> {
         return trackList;
     }
 
-    public List<Track> getTrackArrayList() {
-
-        List<Track> trackList = new ArrayList<>();
-
-        Uri trackUri = Media.EXTERNAL_CONTENT_URI;
-
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
-        String trackSortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-//        String trackSortOrder = AudioColumns.ARTIST + " DESC, " + AudioColumns.TRACK + " DESC";
-
-        Cursor trackCursor = getContext().getContentResolver().query(trackUri, datacol, null, null, null);
-
-        if (trackCursor != null && trackCursor.moveToFirst()) {
-            int idCol = trackCursor.getColumnIndex(Media._ID);
-            int titleCol = trackCursor.getColumnIndex(Media.TITLE);
-            int artistCol = trackCursor.getColumnIndex(Media.ARTIST);
-            int albumCol = trackCursor.getColumnIndex(Media.ALBUM);
-            int albumIdCol = trackCursor.getColumnIndex(Media.ALBUM_ID);
-            int trackCol = trackCursor.getColumnIndex(Media.TRACK);
-            int datacol = trackCursor.getColumnIndex(Media.DATA);
-            int yearCol = trackCursor.getColumnIndex(Media.YEAR);
-            int durCol = trackCursor.getColumnIndex(Media.DURATION);
-            int artistIdCol = trackCursor.getColumnIndex(Media.ARTIST_ID);
-
-            do {
-                long id = trackCursor.getLong(idCol);
-                String title = trackCursor.getString(titleCol);
-                String artist = trackCursor.getString(artistCol);
-                String album = trackCursor.getString(albumCol);
-                long albumId = trackCursor.getLong(albumIdCol);
-                int track = trackCursor.getInt(trackCol);
-                String mSongPath = trackCursor.getString(datacol);
-                String year = trackCursor.getString(yearCol);
-                long artistId = trackCursor.getLong(artistIdCol);
-                String trackDuration = trackCursor.getString(durCol);
-
-                Track trackSong = new Track();
-                trackSong.setTrackAlbumId(id);
-                trackSong.setTrackData(mSongPath);
-                trackSong.setTrackName(title);
-                trackSong.setTrackArtistName(artist);
-
-                trackList.add(trackSong);
-
-            } while (trackCursor.moveToNext());
-            trackCursor.close();
-        }
-        if (trackCursor == null) {
-            return Collections.emptyList();
-        }
-        return trackList;
-
-    }
-
-    public List<Track> getAlbumTrackArrayList(long albumTrackId) {
+    public List<Track> getAlbumTrackList(long albumTrackId) {
         List<Track> trackList = new ArrayList<>();
 
         Uri trackUri = Media.EXTERNAL_CONTENT_URI;

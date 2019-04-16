@@ -40,15 +40,15 @@
         app:layout_constraintTop_toBottomOf="@+id/f_now_playing_song_name" />
 
     <androidx.cardview.widget.CardView
-        app:cardElevation="10dp"
-        app:cardCornerRadius="16dp"
         android:id="@+id/f_now_playing_coverArt_card"
         android:layout_width="0dp"
         android:layout_height="300dp"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/f_now_playing_song_equalizer"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/f_now_playing_song_artist_name">
 
@@ -62,27 +62,68 @@
 
     </androidx.cardview.widget.CardView>
 
-    <NumberPicker
-        android:id="@+id/f_now_playing_song_equalizer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="36dp"
-        android:theme="@style/DefaultNumberPickerTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/f_now_playing_coverArt_card" />
+    <ImageView
+        android:id="@+id/f_n_p_fast_rewind"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="100dp"
+        app:layout_constraintBottom_toBottomOf="@+id/f_n_p_play_pause"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/f_n_p_play_pause"
+        app:srcCompat="@drawable/ic_fast_rewind_dark" />
 
     <ImageView
-        android:id="@+id/f_now_playing_picker_arrow"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="80dp"
-        android:rotation="90"
+        android:id="@+id/f_n_p_fast_forward"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="100dp"
+        app:layout_constraintBottom_toBottomOf="@+id/f_n_p_play_pause"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/f_now_playing_song_equalizer"
-        app:layout_constraintTop_toTopOf="@+id/f_now_playing_song_equalizer"
-        app:srcCompat="@drawable/ic_picker_arrow_left" />
+        app:layout_constraintTop_toTopOf="@+id/f_n_p_play_pause"
+        app:srcCompat="@drawable/ic_fast_forward_dark" />
+
+    <ImageView
+        android:id="@+id/f_n_p_play_pause"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/f_n_p_fast_forward"
+        app:layout_constraintStart_toEndOf="@+id/f_n_p_fast_rewind"
+        app:layout_constraintTop_toBottomOf="@+id/f_n_p_seekbar"
+        app:srcCompat="@drawable/ic_play_circle_dark" />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/f_n_p_seekbar"
+        android:layout_width="0dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/f_n_p_final_tv"
+        app:layout_constraintStart_toEndOf="@+id/f_n_p_initial_tv"
+        app:layout_constraintTop_toBottomOf="@+id/f_now_playing_coverArt_card" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/f_n_p_initial_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="0:02"
+        app:layout_constraintBottom_toBottomOf="@+id/f_n_p_seekbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/f_n_p_seekbar" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/f_n_p_final_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="3:00"
+        app:layout_constraintBottom_toBottomOf="@+id/f_n_p_seekbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/f_n_p_seekbar" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

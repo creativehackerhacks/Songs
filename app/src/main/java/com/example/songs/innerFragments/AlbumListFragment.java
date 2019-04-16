@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import com.example.songs.R;
 import com.example.songs.activity.MainActivity;
 import com.example.songs.adapters.TrackRecyclerViewAdapter;
+import com.example.songs.archComp.TrackModel;
 import com.example.songs.base.BaseInnerFragment;
 import com.example.songs.data.loaders.TrackData;
 import com.example.songs.data.model.Track;
@@ -24,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +40,8 @@ public class AlbumListFragment extends BaseInnerFragment {
     private Toolbar mToolbar;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
 
+    private TrackModel mTrackModel;
+
     private Long mAlbumId;
 
     public AlbumListFragment() {
@@ -48,6 +53,13 @@ public class AlbumListFragment extends BaseInnerFragment {
         albumListFragment.setArguments(args);
 
         return albumListFragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mTrackModel = ViewModelProviders.of(getActivity()).get(TrackModel.class);
     }
 
     @Nullable
@@ -78,14 +90,19 @@ public class AlbumListFragment extends BaseInnerFragment {
 
         setUpRecyclerView(container.getContext());
 
+        // Setting Adapter
+        mTrackRecyclerViewAdapter.loadItems(mTrackModel.getAlbumTracks(mAlbumId));
+
+        mAlbumListRecyclerView.setAdapter(mTrackRecyclerViewAdapter);
+
         return view;
     }
 
     private void setUpRecyclerView(Context context) {
-        mAlbumListTracks = new TrackData(context).getAlbumTrackArrayList(mAlbumId);
+//        mAlbumListTracks = new TrackData(context).getAlbumTrackList(mAlbumId);
         mTrackRecyclerViewAdapter = new TrackRecyclerViewAdapter(context);
-        mTrackRecyclerViewAdapter.addTrackList(mAlbumListTracks);
-        mAlbumListRecyclerView.setAdapter(mTrackRecyclerViewAdapter);
+//        mTrackRecyclerViewAdapter.addTrackList(mAlbumListTracks);
+//        mAlbumListRecyclerView.setAdapter(mTrackRecyclerViewAdapter);
         mAlbumListRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         mTrackRecyclerViewAdapter.setOnItemClickListener(mClickListener);
     }
@@ -96,7 +113,7 @@ public class AlbumListFragment extends BaseInnerFragment {
         public void onClick(View v) {
             RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
             int position = viewHolder.getAdapterPosition();
-            ((MainActivity) getActivity()).playAudio(mAlbumListTracks, position);
+            ((MainActivity) getActivity()).playAudio(mTrackRecyclerViewAdapter.getAllTrackList(), position);
 //            Toast.makeText(getContext(), "You Clicked: " + mTracks.get(position).getTrackName(), Toast.LENGTH_SHORT).show();
         }
     };

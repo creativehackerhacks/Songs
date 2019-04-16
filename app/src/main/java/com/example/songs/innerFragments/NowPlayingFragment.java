@@ -2,9 +2,15 @@ package com.example.songs.innerFragments;
 
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,7 +21,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -26,6 +33,7 @@ import com.example.songs.activity.MainActivity;
 import com.example.songs.animation.MyBounceInterpolator;
 import com.example.songs.base.BaseInnerFragment;
 import com.example.songs.data.model.Track;
+import com.example.songs.service.SimpleMusicService;
 
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -39,17 +47,90 @@ public class NowPlayingFragment extends BaseInnerFragment {
 
     public static final String NOWPLAYINGFRAGMENT = NowPlayingFragment.class.getSimpleName();
 
+    private SimpleMusicService mSimpleMusicService;
+    private boolean mServiceBound = false;
+
     private Uri mArtWorkUri = Uri.parse("content://media/external/audio/albumart");
     private Track mTrack;
 
+    private int position;
+    private Handler mSeekbarHandler = new Handler();
+
     private CardView mCardView;
     private ConstraintLayout mNowPlayingContainerLayout;
-    private NumberPicker mSongEqualizerPicker;
     private TextView mSongName;
     private TextView mSongArtistName;
-    private ImageView mPlayPauseImgView;
+    private ImageView mPlayingImgView;
+
+    private TextView mInitialTv, mFinalTv;
+    private SeekBar mNPSeekbar;
+    private ImageView mRewindIV, mForwardIV, mPlayPauseIV;
 
     private Long mArtworkTrackId;
+
+    // Service Collection
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            SimpleMusicService.LocalSimpleMusicBinder binder = (SimpleMusicService.LocalSimpleMusicBinder) service;
+            mSimpleMusicService = binder.getService();
+            mServiceBound = true;
+            if(mSimpleMusicService != null) {
+                reload();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mServiceBound = false;
+        }
+    };
+
+    private void reload() {
+        playingView();
+        seekbarProgress();
+    }
+
+    private void playingView() {
+        if(mSimpleMusicService != null) {
+            mNPSeekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && getSimpleMusicService() != null && (getSimpleMusicService().isPlaying() || getSimpleMusicService().isPaused())) {
+                        getSimpleMusicService().seekTo(seekBar.getProgress());
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+            int duration = mSimpleMusicService.getTrackDuration();
+            if (duration != -1) {
+                mNPSeekbar.setMax(duration);
+                mFinalTv.setText(durationCalculator(duration));
+            }
+        }
+    }
+
+    private void seekbarProgress() {
+        mSeekbarHandler.postDelayed(mSeekbarHandlerPostDelayed, 100);
+    }
+
+    private Runnable mSeekbarHandlerPostDelayed = new Runnable() {
+        @Override
+        public void run() {
+            updateProgress();
+            mSeekbarHandler.postDelayed(this, 1000);
+        }
+    };
 
     public NowPlayingFragment() {
         // Required empty public constructor
@@ -72,20 +153,20 @@ public class NowPlayingFragment extends BaseInnerFragment {
 
         //TODO: init MediaPlayer and play the audio
 
-
         mCardView = view.findViewById(R.id.f_now_playing_coverArt_card);
         mNowPlayingContainerLayout = view.findViewById(R.id.f_n_p_main_layout);
-        mSongEqualizerPicker = view.findViewById(R.id.f_now_playing_song_equalizer);
+
         mSongName = view.findViewById(R.id.f_now_playing_song_name);
         mSongArtistName = view.findViewById(R.id.f_now_playing_song_artist_name);
-        mPlayPauseImgView = view.findViewById(R.id.f_now_playing_coverArt);
+        mPlayingImgView = view.findViewById(R.id.f_now_playing_coverArt);
 
-        String[] eqValues = {
-                "Jazz", "Pop", "Rock", "Metal", "Bass"
-        };
-        mSongEqualizerPicker.setMinValue(0);
-        mSongEqualizerPicker.setMaxValue(eqValues.length - 1);
-        mSongEqualizerPicker.setDisplayedValues(eqValues);
+        mNPSeekbar = view.findViewById(R.id.f_n_p_seekbar);
+        mInitialTv = view.findViewById(R.id.f_n_p_initial_tv);
+        mFinalTv = view.findViewById(R.id.f_n_p_final_tv);
+        mRewindIV = view.findViewById(R.id.f_n_p_fast_rewind);
+        mForwardIV = view.findViewById(R.id.f_n_p_fast_forward);
+        mPlayPauseIV = view.findViewById(R.id.f_n_p_play_pause);
+
 
         if (getArguments() != null) {
             mTrack = getArguments().getParcelable("TrackFromMainActivity");
@@ -98,7 +179,7 @@ public class NowPlayingFragment extends BaseInnerFragment {
             Uri uri = ContentUris.withAppendedId(mArtWorkUri, mTrack.getTrackId());
             Glide.with(container).load(uri)
                     .transform(new CenterCrop(), new RoundedCorners(16))
-                    .into(mPlayPauseImgView);
+                    .into(mPlayingImgView);
         }
 
         mCardView.setOnClickListener(new OnClickListener() {
@@ -132,6 +213,8 @@ public class NowPlayingFragment extends BaseInnerFragment {
             }
         });
 
+
+
         return view;
     }
 
@@ -139,6 +222,12 @@ public class NowPlayingFragment extends BaseInnerFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(getActivity() == null) {
+            return;
+        }
+        if(mSimpleMusicService != null) {
+            reload();
+        }
         ((MainActivity) getActivity()).mMinPlayer.setVisibility(View.GONE);
     }
 
@@ -149,8 +238,73 @@ public class NowPlayingFragment extends BaseInnerFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if(getActivity() == null) {
+            return;
+        }
+        Intent intent = new Intent(getActivity(), SimpleMusicService.class);
+        getActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
+        if(mServiceBound) {
+            mSimpleMusicService = null;
+            getActivity().unbindService(mServiceConnection);
+            mServiceBound = false;
+        }
         ((MainActivity) getActivity()).mMinPlayer.setVisibility(View.VISIBLE);
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        removeCallback();
+    }
+
+    private void removeCallback() {
+        mSeekbarHandler.removeCallbacks(mSeekbarHandlerPostDelayed);
+        mSeekbarHandler.removeCallbacksAndMessages(null);
+    }
+
+    private void updateProgress() {
+        if(mSimpleMusicService != null && mSimpleMusicService.isPlaying()) {
+            position = mSimpleMusicService.getPlayerPos();
+            Log.e(NOWPLAYINGFRAGMENT, "updateProgress: " + position);
+            mNPSeekbar.setProgress(position);
+            mInitialTv.setText(durationCalculator(position));
+        }
+    }
+
+    private SimpleMusicService getSimpleMusicService() {
+        return mSimpleMusicService;
+    }
+
+    private static String durationCalculator(long id) {
+        String finalTimerString = "";
+        String secondsString = "";
+        String mp3Minutes = "";
+        // Convert total duration into time
+
+        int minutes = (int) (id % (1000 * 60 * 60)) / (1000 * 60);
+        int seconds = (int) ((id % (1000 * 60 * 60)) % (1000 * 60) / 1000);
+
+        // Prepending 0 to seconds if it is one digit
+        if (seconds < 10) {
+            secondsString = "0" + seconds;
+        } else {
+            secondsString = "" + seconds;
+        }
+        if (minutes < 10) {
+            mp3Minutes = "0" + minutes;
+        } else {
+            mp3Minutes = "" + minutes;
+        }
+        finalTimerString = finalTimerString + mp3Minutes + ":" + secondsString;
+        // return timer string
+        return finalTimerString;
+    }
+
 }

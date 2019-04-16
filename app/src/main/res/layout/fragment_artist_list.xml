@@ -7,28 +7,23 @@
     android:layout_height="match_parent"
     tools:artistContext=".activity.MainActivity">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:id="@+id/f_artist_list_view"
-        android:background="@drawable/background_artist_faded" />
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/f_artist_list_app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="180dp"
         app:elevation="0dp"
-        android:background="@android:color/transparent">
+        android:background="@drawable/background_track_faded">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/f_artist_list_collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:titleEnabled="true"
+            app:contentScrim="@android:color/transparent"
             app:expandedTitleMarginEnd="56dp"
             app:expandedTitleGravity="center_horizontal"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"

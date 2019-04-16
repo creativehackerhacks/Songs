@@ -31,8 +31,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemReselectedListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
 import com.ncapdevi.fragnav.FragNavController;
+import com.ncapdevi.fragnav.FragNavController.TransactionListener;
+import com.ncapdevi.fragnav.FragNavController.TransactionType;
 import com.ncapdevi.fragnav.FragNavSwitchController;
 import com.ncapdevi.fragnav.FragNavTransactionOptions;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mPlayPauseBtn;
     private Track mSinglePlayScreenTrack;
 
-    private List<Track> mTrackList;
+    private FragNavTransactionOptions mFragNavTransactionOptions;
 
     /**
      * @param savedInstanceState
@@ -88,6 +93,14 @@ public class MainActivity extends AppCompatActivity {
 
         initializeFragmentList();
         mFragNavController.initialize(FragNavController.TAB1, savedInstanceState);
+
+        mFragNavTransactionOptions = FragNavTransactionOptions.Companion.newBuilder()
+                .customAnimations(
+                        R.anim.slide_in_from_right,
+                        R.anim.slide_out_to_left,
+                        R.anim.slide_in_from_left,
+                        R.anim.slide_out_to_right)
+                .build();
 
         mBottomNavigationView.setOnNavigationItemSelectedListener(bottomNavItemSelected);
         mBottomNavigationView.setOnNavigationItemReselectedListener(bottomNavItemReselected);
@@ -182,8 +195,9 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void pushFragment(Fragment fragment) {
-        mFragNavController.pushFragment(fragment);
+        mFragNavController.pushFragment(fragment, mFragNavTransactionOptions);
     }
+
 
     public void popFragment() {
         mFragNavController.popFragment();
@@ -220,11 +234,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (mFragNavController.getCurrentStack().size() > 1) {
-            mFragNavController.popFragment(
-                    FragNavTransactionOptions.Companion.newBuilder()
-                            .transition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-                            .build()
-            );
+            mFragNavController.popFragment(mFragNavTransactionOptions);
         } else {
             super.onBackPressed();
         }

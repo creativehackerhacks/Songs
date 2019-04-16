@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:titleEnabled="true"
-            app:contentScrim="@color/colorPrimary"
+            app:contentScrim="@android:color/transparent"
             app:expandedTitleMarginEnd="56dp"
             app:expandedTitleGravity="center_horizontal"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"

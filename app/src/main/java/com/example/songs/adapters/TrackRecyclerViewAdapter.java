@@ -13,8 +13,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.songs.R;
+import com.example.songs.data.loaders.TrackData;
 import com.example.songs.data.model.Track;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -25,11 +27,24 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     private Uri mArtWorkUri = Uri.parse("content://media/external/audio/albumart");
     private Context mContext;
     private List<Track> mTrackList;
+    private List<Track> newTracks = new ArrayList<>();
     private View.OnClickListener mClickListener;
     private View.OnLongClickListener mLongClickListener;
 
     public TrackRecyclerViewAdapter(Context context) {
         mContext = context;
+    }
+
+    public void loadItems(List<Track> tracks) {
+        if(tracks == null) {
+            return;
+        }
+        newTracks.addAll(tracks);
+        notifyDataSetChanged();
+    }
+
+    public List<Track> getAllTrackList() {
+        return newTracks;
     }
 
     @NonNull
@@ -41,7 +56,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
     @Override
     public void onBindViewHolder(@NonNull TrackRecyclerViewAdapter.TrackViewHolder holder, int position) {
-        Track track = mTrackList.get(position);
+        Track track = newTracks.get(position);
         holder.bindView(track);
     }
 
@@ -56,14 +71,14 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
     @Override
     public int getItemCount() {
-        return (null != mTrackList ? mTrackList.size() : 0);
+        return (null != newTracks ? newTracks.size() : 0);
     }
 
     public void addTrackList(List<Track> trackList) {
         if (trackList == null) {
             return;
         }
-        mTrackList = trackList;
+        newTracks = trackList;
         notifyDataSetChanged();
     }
 

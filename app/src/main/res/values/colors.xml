@@ -1,21 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#651FFF</color>
-    <color name="colorPrimaryDark">#4615B2</color>
+    <color name="colorPrimary">#0E161D</color>
+    <color name="colorPrimaryDark">#65060A0D</color>
     <color name="colorAccent">#FF6B6B</color>
 
-    <color name="bottomColor">#80e4e4e4</color>
-    <color name="transparentColor">#00ffffff</color>
+    <!-- Text Colors -->
+    <color name="PrimaryTextColor">#FEFFFE</color>
+    <color name="SecondaryTextColor">#8899A6</color>
 
-    <color name="trackStartColor">#01AC87</color>
+    <!-- BottomTabColor -->
+    <color name="bottomNavBackgroundColor">#15202B</color>
+    <color name="bottomTabUnselectedColor">#8899A6</color>
+    <color name="bottomTabSelectedColor">#57FFB6</color>
+
+    <!-- Upper Fragment Toolbar Color -->
+    <color name="trackStartColor">#2541B2</color>
     <color name="albumFadedColor">#005AD2</color>
     <color name="artistStartColor">#FF2767</color>
     <color name="playlistFadedColor">#5800E3</color>
 
+    <!-- UNKNOWN -->
     <color name="innerViewPagerBackground">#F7FAFF</color>
 
+    <!-- UNKNOWN -->
+    <color name="bottomColor">#80e4e4e4</color>
+    <color name="transparentColor">#00ffffff</color>
+
+    <!-- Profile TabLayout Tabs Color -->
     <color name="selectedTabColor">#E5DCDD</color>
     <color name="selectedTabTextColor">#4A4A4A</color>
     <color name="unselectedTabTextColor">#9B9293</color>
     <color name="tabBackground">#E8E8E8</color>
+
 </resources>

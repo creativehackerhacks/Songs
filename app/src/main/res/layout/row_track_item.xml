@@ -36,6 +36,7 @@
             android:ellipsize="end"
             android:hint="@string/row_track_trackName"
             android:maxLines="1"
+            android:theme="@style/PrimaryTextColor"
             app:layout_constraintStart_toEndOf="@+id/row_card_track_coverArt"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -50,6 +51,7 @@
             android:ellipsize="end"
             android:hint="@string/row_track_artistName"
             android:maxLines="1"
+            android:theme="@style/SecondaryTextColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/row_card_track_coverArt"
             app:layout_constraintTop_toBottomOf="@+id/row_card_track_trackName"

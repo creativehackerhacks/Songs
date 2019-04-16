@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import com.example.songs.R;
 import com.example.songs.activity.MainActivity;
 import com.example.songs.adapters.TrackRecyclerViewAdapter;
+import com.example.songs.archComp.TrackModel;
 import com.example.songs.base.BaseInnerFragment;
 import com.example.songs.data.loaders.TrackData;
 import com.example.songs.data.model.Track;
@@ -27,6 +29,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,7 +42,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TracksFragment extends BaseInnerFragment implements LoaderCallbacks<List<Track>> {
+public class TracksFragment extends BaseInnerFragment {
 
     public static final String TRACK_FRAGMENT = TracksFragment.class.getSimpleName();
 
@@ -44,12 +50,13 @@ public class TracksFragment extends BaseInnerFragment implements LoaderCallbacks
     private TrackRecyclerViewAdapter mTrackRecyclerViewAdapter;
     private RecyclerViewSimpleClickListener mRecyclerViewSimpleClickListener;
     private List<Track> mTracks;
-    private List<Track> mSecondTrack;
 
     private int trackLoader = -1;
 
     private Toolbar mToolbar;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
+
+    private TrackModel mTrackModel;
 
     public TracksFragment() {
         // Required empty public constructor
@@ -60,6 +67,12 @@ public class TracksFragment extends BaseInnerFragment implements LoaderCallbacks
         return tracksFragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mTrackModel = ViewModelProviders.of(getActivity()).get(TrackModel.class);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -86,51 +99,20 @@ public class TracksFragment extends BaseInnerFragment implements LoaderCallbacks
 
         setUpRecyclerView(container.getContext());
 
+        // Setting Adapter
+        mTrackRecyclerViewAdapter.loadItems(mTrackModel.getTracks());
+        Log.e(TRACK_FRAGMENT, "onCreateView: " +mTrackModel.getTracks().size());
+
+        mRecyclerView.setAdapter(mTrackRecyclerViewAdapter);
+
         return view;
     }
 
     private void setUpRecyclerView(Context context) {
         mTrackRecyclerViewAdapter = new TrackRecyclerViewAdapter(getContext());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
-        mTracks = new ArrayList<>();
         mTrackRecyclerViewAdapter.setOnItemClickListener(mClickListener);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setAdapter(mTrackRecyclerViewAdapter);
-        initload();
-    }
-
-    private void initload() {
-        getLoaderManager().initLoader(trackLoader, null, this);
-    }
-
-    @NonNull
-    @Override
-    public Loader<List<Track>> onCreateLoader(int id, @Nullable Bundle args) {
-        TrackData trackData = new TrackData(getContext());
-        if (id == trackLoader) {
-//            trackData.setSortorder(Extras.getInstance().get);
-            return trackData;
-        }
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<List<Track>> loader, List<Track> data) {
-        if (data == null) {
-            return;
-        }
-        mTracks = data;
-        mTrackRecyclerViewAdapter.addTrackList(mTracks);
-
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<List<Track>> loader) {
-        mTrackRecyclerViewAdapter.notifyDataSetChanged();
-    }
-
-    public List<Track> getTracks() {
-        return mTracks;
+//        mRecyclerView.setHasFixedSize(true);
     }
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
@@ -144,7 +126,7 @@ public class TracksFragment extends BaseInnerFragment implements LoaderCallbacks
             // viewHolder.getItemId();
             // viewHolder.getItemViewType();
             // viewHolder.itemView;
-            ((MainActivity) getActivity()).playAudio(mTracks, position);
+            ((MainActivity) getActivity()).playAudio(mTrackRecyclerViewAdapter.getAllTrackList(), position);
 //            Toast.makeText(getContext(), "You Clicked: " + mTracks.get(position).getTrackName(), Toast.LENGTH_SHORT).show();
         }
     };

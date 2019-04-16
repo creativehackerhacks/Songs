@@ -9,12 +9,12 @@ public class BaseInnerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity) getActivity()).hideStatusBar();
+//        ((MainActivity) getActivity()).hideStatusBar();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        ((MainActivity) getActivity()).showStatusBar();
+//        ((MainActivity) getActivity()).showStatusBar();
     }
 }

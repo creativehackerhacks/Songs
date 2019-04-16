@@ -7,8 +7,8 @@
     android:layout_height="220dp"
     android:layout_margin="8dp"
     android:orientation="vertical"
-    app:cardBackgroundColor="@android:color/white"
-    app:cardElevation="3dp">
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/row_card_album_constraint_layout"

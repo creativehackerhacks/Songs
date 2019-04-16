@@ -40,6 +40,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     private boolean paused;
     private boolean fastPlay;
     private int playingIndex;
+    private int trackDuration;
 
 
     private AudioAttributes attr = new AudioAttributes.Builder()
@@ -189,6 +190,36 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
         return incPos;
     }
 
+    public void seekTo(int seek) {
+        if (MediaPlayerSingleton.getInstance().getMediaPlayer() != null) {
+            MediaPlayerSingleton.getInstance().getMediaPlayer().seekTo(seek);
+        } else {
+            MediaPlayerSingleton.getInstance().getMediaPlayer().seekTo(0);
+        }
+    }
+
+    public int getPlayerPos() {
+        if(returnpos() == -1) {
+            return 0;
+        }
+        if(MediaPlayerSingleton.getInstance().getMediaPlayer() != null) {
+            return MediaPlayerSingleton.getInstance().getMediaPlayer().getCurrentPosition();
+        } else {
+            return -1;
+        }
+    }
+
+    public int getTrackDuration() {
+        if(returnpos() == -1) {
+            return 0;
+        }
+        if(MediaPlayerSingleton.getInstance().getMediaPlayer() != null) {
+            return trackDuration;
+        } else {
+            return -1;
+        }
+    }
+
 
     //
     public boolean isPlaying() {
@@ -240,6 +271,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
             play();
             fastPlay = false;
         }
+        trackDuration = MediaPlayerSingleton.getInstance().getMediaPlayer().getDuration();
     }
 
 

@@ -3,10 +3,10 @@
     android:shape="rectangle">
 
     <gradient
-        android:startColor="@color/playlistFadedColor"
-        android:endColor="@android:color/transparent"
+        android:startColor="@color/trackStartColor"
+        android:endColor="@color/colorPrimary"
         android:angle="270" />
 
-    <size android:height="180dp" />
+    <size android:height="640dp" />
 
 </shape>
