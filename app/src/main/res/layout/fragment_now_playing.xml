@@ -70,7 +70,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/f_n_p_play_pause"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/f_n_p_play_pause"
-        app:srcCompat="@drawable/ic_fast_rewind_dark" />
+        app:srcCompat="@drawable/ic_fast_rewind_white" />
 
     <ImageView
         android:id="@+id/f_n_p_fast_forward"
@@ -80,7 +80,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/f_n_p_play_pause"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/f_n_p_play_pause"
-        app:srcCompat="@drawable/ic_fast_forward_dark" />
+        app:srcCompat="@drawable/ic_fast_forward_white" />
 
     <ImageView
         android:id="@+id/f_n_p_play_pause"
@@ -92,7 +92,7 @@
         app:layout_constraintEnd_toStartOf="@+id/f_n_p_fast_forward"
         app:layout_constraintStart_toEndOf="@+id/f_n_p_fast_rewind"
         app:layout_constraintTop_toBottomOf="@+id/f_n_p_seekbar"
-        app:srcCompat="@drawable/ic_play_circle_dark" />
+        app:srcCompat="@drawable/ic_play_circle_white" />
 
     <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/f_n_p_seekbar"

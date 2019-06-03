@@ -20,6 +20,7 @@ The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for t
     <string name="row_track_artistName">Track Subtitle</string>
     <string name="current_userName">User Name</string>
     <string name="current_user_bio">NF is the stage name of rapper and composer Nate Feuerstein from Gladwin, Michigan.</string>
+    <string name="bottomsheet_dialog_delete">Delete</string>
 
 
 </resources>

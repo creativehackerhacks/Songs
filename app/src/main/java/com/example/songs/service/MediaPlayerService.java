@@ -14,7 +14,7 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.example.songs.data.model.Track;
+import com.example.songs.data.model.Tracks;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,39 +36,39 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private AudioManager mAudioManager;
 
     // List of available Audio files
-    private List<Track> mTrackList;
-    private Track mTrack;
+    private List<Tracks> mTracksList;
+    private Tracks mTracks;
     private int mTrackPos;
     private boolean mIsPlaying = false;
 
 
     // Initialize the audioList with the ArrayList
-    public void setAudioList(List<Track> trackList, int trackPos, boolean play) {
-        mTrackList = trackList;
+    public void setAudioList(List<Tracks> tracksList, int trackPos, boolean play) {
+        mTracksList = tracksList;
         mTrackPos = trackPos;
 
         startCurrentTrack(trackPos, play);
     }
 
     private void startCurrentTrack(int trackPos, boolean play) {
-        if (trackPos != -1 && trackPos <= mTrackList.size()) {
+        if (trackPos != -1 && trackPos <= mTracksList.size()) {
             mTrackPos = trackPos;
-            mTrack = mTrackList.get(mTrackPos);
+            mTracks = mTracksList.get(mTrackPos);
             if (play) {
-                tellStatus(true, mTrack);
+                tellStatus(true, mTracks);
             } else {
-                tellStatus(false, mTrack);
+                tellStatus(false, mTracks);
             }
         }
     }
 
-    private void tellStatus(boolean bVal, Track track) {
+    private void tellStatus(boolean bVal, Tracks tracks) {
         mIsPlaying = bVal;
-//        startSong(track);
-        initMediaPlayer(track);
+//        startSong(tracks);
+        initMediaPlayer(tracks);
     }
 
-    private void initMediaPlayer(Track track) {
+    private void initMediaPlayer(Tracks tracks) {
         mMediaPlayer = new MediaPlayer();
 
         // Set uup MediaPlayer event listeners
@@ -86,7 +86,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         mMediaPlayer.setAudioAttributes(attr);
         try {
             // Set the data source to the mediaFile location
-            mMediaPlayer.setDataSource(track.getTrackData());
+            mMediaPlayer.setDataSource(tracks.getTrackData());
         } catch (IOException e) {
             e.printStackTrace();
             stopSelf();
@@ -94,17 +94,17 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         mMediaPlayer.prepareAsync();
     }
 
-    private void startSong(Track track) {
-        if (returnPos() != -1 && mTrackList.size() > 0) {
+    private void startSong(Tracks tracks) {
+        if (returnPos() != -1 && mTracksList.size() > 0) {
             mMediaPlayer = new MediaPlayer();
-            Uri dataLoader = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, track.getTrackAlbumId());
+            Uri dataLoader = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, tracks.getTrackAlbumId());
             if (dataLoader == null) {
                 return;
             }
             try {
                 mMediaPlayer.reset();
 //                mMediaPlayer.setDataSource(MediaPlayerService.this, dataLoader);
-                mMediaPlayer.setDataSource(track.getTrackData());
+                mMediaPlayer.setDataSource(tracks.getTrackData());
                 mMediaPlayer.setAudioAttributes(attr);
                 mMediaPlayer.prepareAsync();
 //                mMediaPlayer.setAuxEffectSendLevel(1.0f);
@@ -118,7 +118,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private int returnPos() {
-        return mTrackList.indexOf(mTrack) != -1 && mTrackList.indexOf(mTrack) < mTrackList.size() ? mTrackList.indexOf(mTrack) : -1;
+        return mTracksList.indexOf(mTracks) != -1 && mTracksList.indexOf(mTracks) < mTracksList.size() ? mTracksList.indexOf(mTracks) : -1;
     }
 
 
@@ -147,7 +147,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         mMediaPlayer.setAudioAttributes(attr);
         try {
             // Set the data source to the mediaFile location
-            mMediaPlayer.setDataSource(mTrackList.get(trackPos).getTrackData());
+            mMediaPlayer.setDataSource(mTracksList.get(trackPos).getTrackData());
         } catch (IOException e) {
             e.printStackTrace();
             stopSelf();
@@ -248,7 +248,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 // resume playback
-//                if (mMediaPlayer == null) initMediaPlayer(mTrackList.get(mTrackPos));
+//                if (mMediaPlayer == null) initMediaPlayer(mTracksList.get(mTrackPos));
 //                if (mMediaPlayer == null) startCurrentTrack(mTrackPos, true);
 //                else if (!mMediaPlayer.isPlaying()) mMediaPlayer.start();
                 mMediaPlayer.setVolume(1.0f, 1.0f);

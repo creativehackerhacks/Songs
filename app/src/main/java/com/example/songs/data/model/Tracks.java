@@ -3,7 +3,7 @@ package com.example.songs.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Track implements Parcelable {
+public class Tracks implements Parcelable {
 
     private Long mTrackAlbumId;
     private Long mTrackId;
@@ -11,7 +11,7 @@ public class Track implements Parcelable {
     private String mTrackName;
     private String mTrackArtistName;
 
-    public Track() {
+    public Tracks() {
     }
 
     public Long getTrackId() {
@@ -69,7 +69,7 @@ public class Track implements Parcelable {
         dest.writeString(this.mTrackArtistName);
     }
 
-    protected Track(Parcel in) {
+    protected Tracks(Parcel in) {
         this.mTrackAlbumId = (Long) in.readValue(Long.class.getClassLoader());
         this.mTrackId = (Long) in.readValue(Long.class.getClassLoader());
         this.mTrackData = in.readString();
@@ -77,15 +77,15 @@ public class Track implements Parcelable {
         this.mTrackArtistName = in.readString();
     }
 
-    public static final Creator<Track> CREATOR = new Creator<Track>() {
+    public static final Creator<Tracks> CREATOR = new Creator<Tracks>() {
         @Override
-        public Track createFromParcel(Parcel source) {
-            return new Track(source);
+        public Tracks createFromParcel(Parcel source) {
+            return new Tracks(source);
         }
 
         @Override
-        public Track[] newArray(int size) {
-            return new Track[size];
+        public Tracks[] newArray(int size) {
+            return new Tracks[size];
         }
     };
 
@@ -107,7 +107,7 @@ public class Track implements Parcelable {
 //    }
 //
 //
-//    public class TrackViewHolder extends FastAdapter.ViewHolder<Track> {
+//    public class TrackViewHolder extends FastAdapter.ViewHolder<Tracks> {
 //        private TextView mTrackTitle, mTrackSubtitle;
 //        public ImageView mTrackArtwork;
 //
@@ -120,7 +120,7 @@ public class Track implements Parcelable {
 //
 //        @RequiresApi(api = VERSION_CODES.LOLLIPOP)
 //        @Override
-//        public void bindView(Track item, List<Object> payloads) {
+//        public void bindView(Tracks item, List<Object> payloads) {
 //
 //            Uri uri = ContentUris.withAppendedId(mArtWorkUri, item.getTrackAlbumId());
 //            Glide.with(itemView).load(uri)
@@ -134,7 +134,7 @@ public class Track implements Parcelable {
 //        }
 //
 //        @Override
-//        public void unbindView(Track item) {
+//        public void unbindView(Tracks item) {
 //
 //        }
 //

@@ -8,11 +8,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
-import android.os.Build.VERSION_CODES;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PersistableBundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,7 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.songs.R;
-import com.example.songs.data.model.Track;
+import com.example.songs.data.model.Tracks;
 import com.example.songs.innerFragments.NowPlayingFragment;
 import com.example.songs.topFragment.ProfileFragment;
 import com.example.songs.topFragment.SettingsFragment;
@@ -35,19 +34,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemReselectedListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
 import com.ncapdevi.fragnav.FragNavController;
-import com.ncapdevi.fragnav.FragNavController.TransactionListener;
-import com.ncapdevi.fragnav.FragNavController.TransactionType;
 import com.ncapdevi.fragnav.FragNavSwitchController;
 import com.ncapdevi.fragnav.FragNavTransactionOptions;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -71,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout mMinPlayer;
     private TextView mSongName;
     private Button mPlayPauseBtn;
-    private Track mSinglePlayScreenTrack;
+    private Tracks mSinglePlayScreenTracks;
 
     private Drawable mPlayDrawable, mPauseDrawable;
 
@@ -88,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        hidestatusBar();
 
         mBottomNavigationView = findViewById(R.id.a_m_navigation);
         mMinPlayer = findViewById(R.id.a_m_min_player);
@@ -119,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 //            @Override
 //            public void onClick(View v) {
 //                Bundle bundle = new Bundle();
-//                bundle.putParcelable("TrackFromMainActivity", mSinglePlayScreenTrack);
+//                bundle.putParcelable("TrackFromMainActivity", mSinglePlayScreenTracks);
 //                Fragment mPlayingFragment = NowPlayingFragment.newInstance();
 //                mPlayingFragment.setArguments(bundle);
 //                pushFragment(mPlayingFragment);
@@ -129,6 +125,22 @@ public class MainActivity extends AppCompatActivity {
         mMinPlayer.setOnTouchListener(mCustomMinPlayerListener);
 
         mPlayPauseBtn.setOnClickListener(mPlayPauseToggle);
+    }
+
+    private void hidestatusBar() {
+        // Hide Status Bar
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        else {
+//            View decorView = getWindow().getDecorView();
+//            // Hide Status Bar.
+//            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+//            decorView.setSystemUiVisibility(uiOptions);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
     }
 
     private View.OnClickListener mPlayPauseToggle = new OnClickListener() {
@@ -170,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick() {
             Bundle bundle = new Bundle();
-            bundle.putParcelable("TrackFromMainActivity", mSinglePlayScreenTrack);
+            bundle.putParcelable("TrackFromMainActivity", mSinglePlayScreenTracks);
             Fragment mPlayingFragment = NowPlayingFragment.newInstance();
             mPlayingFragment.setArguments(bundle);
             pushFragment(mPlayingFragment);
@@ -288,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    public void playAudio(List<Track> tracks, int pos) {
+    public void playAudio(List<Tracks> tracks, int pos) {
         if (mMediaPlayerService == null) {
             return;
         }
@@ -296,9 +308,9 @@ public class MainActivity extends AppCompatActivity {
         minPlayerSetup(tracks, pos);
     }
 
-    private void minPlayerSetup(List<Track> tracks, int pos) {
+    private void minPlayerSetup(List<Tracks> tracks, int pos) {
         mMinPlayer.setVisibility(View.VISIBLE);
-        mSinglePlayScreenTrack = tracks.get(pos);
+        mSinglePlayScreenTracks = tracks.get(pos);
         mSongName.setText(tracks.get(pos).getTrackName());
     }
 
@@ -377,6 +389,18 @@ public class MainActivity extends AppCompatActivity {
     public void showStatusBar() {
         // Hide status bar
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+
+    // for hiding/showing bottom navigation view
+    public void hideBottomNavigationView() {
+        mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight()).setDuration(300);
+        mBottomNavigationView.setVisibility(View.GONE);
+    }
+
+    public void showBottomNavigationView() {
+        mBottomNavigationView.animate().translationY(0).setDuration(300);
+        mBottomNavigationView.setVisibility(View.VISIBLE);
     }
 
 }

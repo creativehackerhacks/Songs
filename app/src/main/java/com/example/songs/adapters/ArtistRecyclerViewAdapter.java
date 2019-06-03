@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.songs.R;
+import com.example.songs.data.model.Albums;
 import com.example.songs.data.model.Artist;
 
 import java.util.List;
@@ -53,6 +54,10 @@ public class ArtistRecyclerViewAdapter extends RecyclerView.Adapter<ArtistRecycl
     @Override
     public int getItemCount() {
         return mArtistList.size();
+    }
+
+    public List<Artist> getArtistsList() {
+        return mArtistList;
     }
 
     public class ArtistViewHolder extends RecyclerView.ViewHolder {

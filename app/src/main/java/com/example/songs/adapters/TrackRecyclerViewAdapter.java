@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,8 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.songs.R;
-import com.example.songs.data.loaders.TrackData;
-import com.example.songs.data.model.Track;
+import com.example.songs.data.model.Tracks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
     private Uri mArtWorkUri = Uri.parse("content://media/external/audio/albumart");
     private Context mContext;
-    private List<Track> mTrackList;
-    private List<Track> newTracks = new ArrayList<>();
+    private List<Tracks> mNewTracks = new ArrayList<>();
     private View.OnClickListener mClickListener;
     private View.OnLongClickListener mLongClickListener;
 
@@ -35,16 +34,25 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         mContext = context;
     }
 
-    public void loadItems(List<Track> tracks) {
+    public void loadItems(List<Tracks> tracks) {
         if(tracks == null) {
             return;
         }
-        newTracks.addAll(tracks);
+        mNewTracks.clear();
+        mNewTracks.addAll(tracks);
         notifyDataSetChanged();
     }
 
-    public List<Track> getAllTrackList() {
-        return newTracks;
+    public List<Tracks> getAllTrackList() {
+        return mNewTracks;
+    }
+
+    public void deleteSingleRow(Tracks tracks) {
+        if(mNewTracks==null) {
+            return;
+        }
+        mNewTracks.remove(tracks);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -56,8 +64,8 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
     @Override
     public void onBindViewHolder(@NonNull TrackRecyclerViewAdapter.TrackViewHolder holder, int position) {
-        Track track = newTracks.get(position);
-        holder.bindView(track);
+        Tracks tracks = mNewTracks.get(position);
+        holder.bindView(tracks);
     }
 
     //TODO: Step 2 of 4: Assign itemClickListener to your local View.OnClickListener variable
@@ -65,26 +73,28 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         mClickListener = itemClickListener;
     }
 
-    public void setOnItemLongClickListener(View.OnLongClickListener itemLongClickListener) {
+    public void setOnItemLongClickListener(OnLongClickListener itemLongClickListener) {
         mLongClickListener = itemLongClickListener;
     }
 
     @Override
     public int getItemCount() {
-        return (null != newTracks ? newTracks.size() : 0);
+        return (null != mNewTracks ? mNewTracks.size() : 0);
     }
 
-    public void addTrackList(List<Track> trackList) {
-        if (trackList == null) {
+    public void addTrackList(List<Tracks> tracksList) {
+        if (tracksList == null) {
             return;
         }
-        newTracks = trackList;
+        mNewTracks = tracksList;
         notifyDataSetChanged();
     }
 
     public class TrackViewHolder extends RecyclerView.ViewHolder {
         private TextView mTrackTitle, mTrackSubtitle;
         public ImageView mTrackArtwork;
+        // Complete the below one.
+        public ImageView mMoreOptionIV;
 
         public TrackViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -97,16 +107,16 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
             itemView.setOnLongClickListener(mLongClickListener);
         }
 
-        public void bindView(Track track) {
-            Uri uri = ContentUris.withAppendedId(mArtWorkUri, track.getTrackId());
+        public void bindView(Tracks tracks) {
+            Uri uri = ContentUris.withAppendedId(mArtWorkUri, tracks.getTrackId());
             Glide.with(itemView).load(uri)
                     .apply(new RequestOptions().circleCropTransform())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.placeholder_gradient_track_artwork)
                     .into(mTrackArtwork);
 
-            mTrackTitle.setText(track.getTrackName());
-            mTrackSubtitle.setText(track.getTrackArtistName());
+            mTrackTitle.setText(tracks.getTrackName());
+            mTrackSubtitle.setText(tracks.getTrackArtistName());
         }
 
     }

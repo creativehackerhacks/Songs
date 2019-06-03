@@ -11,7 +11,7 @@ import android.widget.Button;
 import com.example.songs.R;
 import com.example.songs.activity.MainActivity;
 import com.example.songs.innerFragments.AlbumsFragment;
-import com.example.songs.innerFragments.ArtistListFragment;
+import com.example.songs.innerFragments.ArtistFragment;
 import com.example.songs.innerFragments.TracksFragment;
 
 import androidx.fragment.app.Fragment;
@@ -47,14 +47,14 @@ public class SongsFragment extends Fragment {
         mTrackButton = view.findViewById(R.id.f_songs_track_btn);
         mAlbumButton = view.findViewById(R.id.f_songs_albums_btn);
 
-        final ArtistListFragment artistListFragment = ArtistListFragment.newInstance();
+        final ArtistFragment artistFragment = ArtistFragment.newInstance();
         final TracksFragment tracksFragment = TracksFragment.newInstance();
         final AlbumsFragment albumsFragment = AlbumsFragment.newInstance();
 
         mArtistButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).pushFragment(artistListFragment);
+                ((MainActivity) getActivity()).pushFragment(artistFragment);
             }
         });
 

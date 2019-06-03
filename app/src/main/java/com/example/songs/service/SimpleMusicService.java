@@ -16,7 +16,7 @@ import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 
 import com.example.songs.activity.MainActivity;
-import com.example.songs.data.model.Track;
+import com.example.songs.data.model.Tracks;
 import com.example.songs.singleton.MediaPlayerSingleton;
 import com.example.songs.util.AudioWidget;
 import com.example.songs.util.Constants;
@@ -36,9 +36,9 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     private static final String TAG = SimpleMusicService.class.getSimpleName();
     private final LocalSimpleMusicBinder mLocalSimpleMusicBinder = new LocalSimpleMusicBinder();
 
-    private List<Track> mTrackList = new ArrayList<>();
-    private List<Track> mOgList = new ArrayList<>();
-    private Track mSingleTrack;
+    private List<Tracks> mTracksList = new ArrayList<>();
+    private List<Tracks> mOgList = new ArrayList<>();
+    private Tracks mSingleTracks;
     private boolean isRunning = false;
     private boolean paused;
     private boolean fastPlay;
@@ -83,50 +83,50 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
 
 
 
-    public void setTrackList(List<Track> trackList, int pos, boolean play) {
-        smartPlayList(trackList);
+    public void setTrackList(List<Tracks> tracksList, int pos, boolean play) {
+        smartPlayList(tracksList);
         setDataPos(pos, play);
     }
 
-    public void smartPlayList(List<Track> smartPlaylist) {
+    public void smartPlayList(List<Tracks> smartPlaylist) {
         if (smartPlaylist != null && smartPlaylist.size() > 0) {
             mOgList = smartPlaylist;
-            mTrackList.clear();
-            mTrackList.addAll(mOgList);
+            mTracksList.clear();
+            mTracksList.addAll(mOgList);
         } else {
             Log.d(TAG, "smartPlayList: error");
         }
     }
 
     private void setDataPos(int pos, boolean play) {
-        if (pos != -1 && pos < mTrackList.size()) {
+        if (pos != -1 && pos < mTracksList.size()) {
             playingIndex = pos;
-            mSingleTrack = mTrackList.get(pos);
+            mSingleTracks = mTracksList.get(pos);
             if (play) {
-                fastPlay(true, mSingleTrack);
+                fastPlay(true, mSingleTracks);
             } else {
-                fastPlay(false, mSingleTrack);
+                fastPlay(false, mSingleTracks);
             }
         } else {
             Log.d(TAG, "setDataPos: null value");
         }
     }
 
-    public void fastPlay(boolean torf, Track track) {
+    public void fastPlay(boolean torf, Tracks tracks) {
         fastPlay = torf;
-        startCurrentTrack(track);
+        startCurrentTrack(tracks);
     }
 
     public int returnpos() {
-        return mTrackList.indexOf(mSingleTrack) != -1 && mTrackList.indexOf(mSingleTrack) < mTrackList.size() ? mTrackList.indexOf(mSingleTrack) : -1;
+        return mTracksList.indexOf(mSingleTracks) != -1 && mTracksList.indexOf(mSingleTracks) < mTracksList.size() ? mTracksList.indexOf(mSingleTracks) : -1;
     }
 
-    public void startCurrentTrack(Track track) {
-        if (returnpos() != -1 && mTrackList.size() > 0) {
+    public void startCurrentTrack(Tracks tracks) {
+        if (returnpos() != -1 && mTracksList.size() > 0) {
             if (MediaPlayerSingleton.getInstance().getMediaPlayer() == null) {
                 return;
             }
-            Uri dataLoader = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, track.getTrackId());
+            Uri dataLoader = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, tracks.getTrackId());
             if (dataLoader == null) {
                 return;
             }
@@ -148,7 +148,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
 
     // for music play/pause
     public void play() {
-        if (mSingleTrack == null) {
+        if (mSingleTracks == null) {
             return;
         }
         finalPlay();
@@ -163,7 +163,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     }
 
     public void pause() {
-        if (mSingleTrack == null) {
+        if (mSingleTracks == null) {
             return;
         }
         finalPause();
@@ -182,11 +182,11 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
 
     public void playNext(boolean torf) {
         int position = getNextPos(torf);
-        if (position != -1 && position < mTrackList.size()) {
+        if (position != -1 && position < mTracksList.size()) {
             paused = false;
             fastPlay = true;
-            mSingleTrack = mTrackList.get(position);
-            fastPlay(true, mSingleTrack);
+            mSingleTracks = mTracksList.get(position);
+            fastPlay(true, mSingleTracks);
             Log.d(TAG, "playNext: Done");
         } else {
             fastPlay = false;
@@ -264,7 +264,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (mTrackList.size() == 0 || returnpos() == -1) {
+        if (mTracksList.size() == 0 || returnpos() == -1) {
             return;
         }
         playNext(true);
@@ -300,7 +300,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (isPlaying() && mTrackList.size() > 0) {
+        if (isPlaying() && mTracksList.size() > 0) {
             return true;
         }
         Log.d(TAG, "onUnbind: Done");

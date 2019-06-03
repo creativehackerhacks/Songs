@@ -35,7 +35,7 @@ import static android.app.Activity.RESULT_OK;
  */
 public class ProfileFragment extends Fragment {
 
-    private ImageView mCoverImage;
+    private ImageView mCoverImage, mProfileImage;
 
     private ViewPagerAdapter mViewPagerAdapter;
     private ProfileViewPagerAdapter mProfileViewPagerAdapter;
@@ -59,9 +59,10 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.f_profile_new, container, false);
+        View view = inflater.inflate(R.layout.fragment_old_profile, container, false);
 
-        mCoverImage = view.findViewById(R.id.f_profile_inside_proImage);
+        mCoverImage = view.findViewById(R.id.f_profile_cover_image);
+        mProfileImage = view.findViewById(R.id.f_profile_inside_proImage);
         mViewPager = view.findViewById(R.id.f_profile_viewPager);
 
         mOuterViewPager = view.findViewById(R.id.f_profile_outer_viewPager);
@@ -74,7 +75,7 @@ public class ProfileFragment extends Fragment {
         mViewPagerAdapter.addFragment(new ProfileBioSocialFragment());
         mViewPager.setAdapter(mViewPagerAdapter);
 
-        mProfileViewPagerAdapter.addFragment(new ProfilePostsFragment(), "Songs");
+        mProfileViewPagerAdapter.addFragment(new ProfilePostsFragment(), "Posts");
         mProfileViewPagerAdapter.addFragment(new ProfileCirclesFragment(), "Circles");
         mProfileViewPagerAdapter.addFragment(new ProfileFollowersFragment(), "Followers");
         mProfileViewPagerAdapter.addFragment(new ProfileFollowingFragment(), "Following");
@@ -84,27 +85,46 @@ public class ProfileFragment extends Fragment {
         mOuterTabLayout.setupWithViewPager(mOuterViewPager);
 
 
-        mCoverImage.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
-            }
-        });
+        mCoverImage.setOnClickListener(mImageClick);
+        mProfileImage.setOnClickListener(mImageClick);
 
 
         return view;
     }
 
+    private View.OnClickListener mImageClick = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.f_profile_cover_image:
+                    Intent pickCoverPhoto = new Intent(Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(pickCoverPhoto, 1);//one can be replaced with any action code
+                    break;
+                case R.id.f_profile_inside_proImage:
+                    Intent pickProfilePhoto = new Intent(Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(pickProfilePhoto, 2);//one can be replaced with any action code
+                    break;
+            }
+        }
+    };
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            Uri selectedImage = data.getData();
-            Glide.with(getContext()).load(selectedImage)
-                    .apply(new RequestOptions().circleCropTransform())
-                    .into(mCoverImage);
+            if(requestCode == 1) {
+                Uri selectedImage = data.getData();
+                Glide.with(getContext()).load(selectedImage)
+                        .into(mCoverImage);
+            }
+            if (requestCode == 2) {
+                Uri selectedImage = data.getData();
+                Glide.with(getContext()).load(selectedImage)
+                        .apply(new RequestOptions().circleCropTransform())
+                        .into(mProfileImage);
+            }
         }
     }
 

@@ -15,6 +15,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.songs.R;
 import com.example.songs.data.model.Albums;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -24,12 +25,24 @@ public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecycler
 
     private Uri mUri = Uri.parse("content://media/external/audio/albumart");
     private Context mContext;
-    private List<Albums> mAlbumsList;
+    private List<Albums> mAlbumsList = new ArrayList<>();
     private View.OnClickListener mClickListener;
 
-    public AlbumRecyclerViewAdapter(Context context, List<Albums> albumsList) {
+    public AlbumRecyclerViewAdapter(Context context) {
         mContext = context;
-        mAlbumsList = albumsList;
+    }
+
+    public void loadAllAlbums(List<Albums> albums) {
+        if (albums == null) {
+            return;
+        }
+        mAlbumsList.clear();
+        mAlbumsList.addAll(albums);
+        notifyDataSetChanged();
+    }
+
+    public List<Albums> getAlbumsList() {
+        return mAlbumsList;
     }
 
     @NonNull

@@ -6,6 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.content.AsyncTaskLoader;
 
+/**
+ * NOT USING THIS RIGHT NOW.
+ * @param <T>
+ */
 public class BaseAsyncTaskLoader<T> extends AsyncTaskLoader<T> {
 
     protected T mData;

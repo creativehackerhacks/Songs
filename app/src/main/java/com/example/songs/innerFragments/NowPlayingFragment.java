@@ -31,8 +31,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.songs.R;
 import com.example.songs.activity.MainActivity;
 import com.example.songs.animation.MyBounceInterpolator;
-import com.example.songs.base.BaseInnerFragment;
-import com.example.songs.data.model.Track;
+import com.example.songs.data.model.Tracks;
 import com.example.songs.service.SimpleMusicService;
 
 import androidx.cardview.widget.CardView;
@@ -43,7 +42,7 @@ import androidx.fragment.app.Fragment;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NowPlayingFragment extends BaseInnerFragment {
+public class NowPlayingFragment extends Fragment {
 
     public static final String NOWPLAYINGFRAGMENT = NowPlayingFragment.class.getSimpleName();
 
@@ -51,7 +50,7 @@ public class NowPlayingFragment extends BaseInnerFragment {
     private boolean mServiceBound = false;
 
     private Uri mArtWorkUri = Uri.parse("content://media/external/audio/albumart");
-    private Track mTrack;
+    private Tracks mTracks;
 
     private int position;
     private Handler mSeekbarHandler = new Handler();
@@ -83,6 +82,13 @@ public class NowPlayingFragment extends BaseInnerFragment {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mServiceBound = false;
+        }
+    };
+
+    private OnClickListener mPlayPauseClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mSimpleMusicService.toggle();
         }
     };
 
@@ -167,16 +173,18 @@ public class NowPlayingFragment extends BaseInnerFragment {
         mForwardIV = view.findViewById(R.id.f_n_p_fast_forward);
         mPlayPauseIV = view.findViewById(R.id.f_n_p_play_pause);
 
+        mPlayPauseIV.setOnClickListener(mPlayPauseClickListener);
+
 
         if (getArguments() != null) {
-            mTrack = getArguments().getParcelable("TrackFromMainActivity");
-            mSongName.setText(mTrack.getTrackName());
-            mSongArtistName.setText(mTrack.getTrackArtistName());
+            mTracks = getArguments().getParcelable("TrackFromMainActivity");
+            mSongName.setText(mTracks.getTrackName());
+            mSongArtistName.setText(mTracks.getTrackArtistName());
 
-            Log.e(NOWPLAYINGFRAGMENT, "onCreateView: " + mTrack.getTrackId());
-            Log.e(NOWPLAYINGFRAGMENT, "onCreateView: " + mTrack.getTrackAlbumId());
+            Log.e(NOWPLAYINGFRAGMENT, "onCreateView: " + mTracks.getTrackId());
+            Log.e(NOWPLAYINGFRAGMENT, "onCreateView: " + mTracks.getTrackAlbumId());
 
-            Uri uri = ContentUris.withAppendedId(mArtWorkUri, mTrack.getTrackId());
+            Uri uri = ContentUris.withAppendedId(mArtWorkUri, mTracks.getTrackId());
             Glide.with(container).load(uri)
                     .transform(new CenterCrop(), new RoundedCorners(16))
                     .into(mPlayingImgView);
@@ -229,6 +237,7 @@ public class NowPlayingFragment extends BaseInnerFragment {
             reload();
         }
         ((MainActivity) getActivity()).mMinPlayer.setVisibility(View.GONE);
+        ((MainActivity) getActivity()).hideBottomNavigationView();
     }
 
     @Override
@@ -256,6 +265,7 @@ public class NowPlayingFragment extends BaseInnerFragment {
             mServiceBound = false;
         }
         ((MainActivity) getActivity()).mMinPlayer.setVisibility(View.VISIBLE);
+        ((MainActivity) getActivity()).showBottomNavigationView();
     }
 
     @Override

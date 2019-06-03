@@ -1,65 +1,88 @@
 package com.example.songs.innerFragments;
 
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.songs.R;
-import com.example.songs.adapters.ArtistRecyclerViewAdapter;
-import com.example.songs.base.BaseInnerFragment;
-import com.example.songs.data.loaders.ArtistData;
-import com.example.songs.data.model.Artist;
+import com.example.songs.activity.MainActivity;
+import com.example.songs.adapters.TrackRecyclerViewAdapter;
+import com.example.songs.archComp.TrackModel;
+import com.example.songs.data.model.Tracks;
+import com.example.songs.interfaces.RecyclerViewSimpleClickListener;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.util.List;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ArtistListFragment extends BaseInnerFragment {
+public class ArtistListFragment extends Fragment {
 
-    public static final String ARTIST_LIST_FRAGMENT = ArtistListFragment.class.getSimpleName();
 
-    private RecyclerView mRecyclerView;
-    private ArtistRecyclerViewAdapter mArtistRecyclerViewAdapter;
-    private List<Artist> mArtistList;
+    private static final String ARTISTLISTFRAGMENT = "ARTISTLISTFRAGMENT";
+    private RecyclerView mArtistListRecyclerview;
+    private TrackRecyclerViewAdapter mTrackRecyclerViewAdapter;
+    private RecyclerViewSimpleClickListener mRecyclerViewSimpleClickListener;
+    private List<Tracks> mArtistListTracks;
 
     private Toolbar mToolbar;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
 
+    private TrackModel mTrackModel;
+
+    private String mArtistName;
 
     public ArtistListFragment() {
-        // Required empty public constructor
     }
 
-    public static ArtistListFragment newInstance() {
+    public static ArtistListFragment getInstance() {
         ArtistListFragment artistListFragment = new ArtistListFragment();
+        Bundle args = new Bundle();
+        artistListFragment.setArguments(args);
+
         return artistListFragment;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_artist_list, container, false);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+        mTrackModel = ViewModelProviders.of(getActivity()).get(TrackModel.class);
+    }
 
-        mCollapsingToolbarLayout = view.findViewById(R.id.f_artist_list_collapsing_toolbar);
-        mCollapsingToolbarLayout.setTitle("Albums");
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_tracks, container, false);
 
-        mToolbar = view.findViewById(R.id.f_artist_list_toolbar);
-        mRecyclerView = view.findViewById(R.id.f_artist_list_recyclerView);
+        if (getArguments() != null) {
+            mArtistName = getArguments().getString("ALBUM_NAME");
+        }
+
+        Log.e(ARTISTLISTFRAGMENT, "onCreateView: album id is:: " + mTrackModel.getArtistsTracks(mArtistName));
+
+        mCollapsingToolbarLayout = view.findViewById(R.id.f_tracks_collapsing_toolbar);
+        mCollapsingToolbarLayout.setTitle("Songs");
+
+        mToolbar = view.findViewById(R.id.f_tracks_toolbar);
+        mArtistListRecyclerview = view.findViewById(R.id.f_tracks_recyclerView);
 
         AppCompatActivity appCompatActivity = ((AppCompatActivity) getActivity());
         appCompatActivity.setSupportActionBar(mToolbar);
@@ -74,28 +97,37 @@ public class ArtistListFragment extends BaseInnerFragment {
 
         setUpRecyclerView(container.getContext());
 
+        // Setting Adapter
+        mTrackRecyclerViewAdapter.loadItems(mTrackModel.getArtistsTracks(mArtistName));
+        mArtistListRecyclerview.setAdapter(mTrackRecyclerViewAdapter);
 
         return view;
     }
 
     private void setUpRecyclerView(Context context) {
-        mArtistList = new ArtistData(context).loadArtistListInBackground();
-        mArtistRecyclerViewAdapter = new ArtistRecyclerViewAdapter(context, mArtistList);
-        mRecyclerView.setAdapter(mArtistRecyclerViewAdapter);
-//        mRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
-        mRecyclerView.setLayoutManager(new GridLayoutManager(context, 2));
-        mArtistRecyclerViewAdapter.setOnClickListener(mClickListener);
+//        mAlbumListTracks = new TrackData(context).getAlbumTrackList(mAlbumId);
+        mTrackRecyclerViewAdapter = new TrackRecyclerViewAdapter(context);
+//        mTrackRecyclerViewAdapter.addTrackList(mAlbumListTracks);
+//        mAlbumListRecyclerView.setAdapter(mTrackRecyclerViewAdapter);
+        mArtistListRecyclerview.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        mTrackRecyclerViewAdapter.setOnItemClickListener(mClickListener);
     }
 
-    private View.OnClickListener mClickListener = new OnClickListener() {
+    private View.OnClickListener mClickListener = new View.OnClickListener() {
+        @TargetApi(VERSION_CODES.LOLLIPOP)
         @Override
         public void onClick(View v) {
-
             RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
             int position = viewHolder.getAdapterPosition();
-
-            Toast.makeText(getContext(), "v: " + mArtistList.get(position).getArtistName(), Toast.LENGTH_SHORT).show();
+            ((MainActivity) getActivity()).playAudio(mTrackRecyclerViewAdapter.getAllTrackList(), position);
+//            Toast.makeText(getContext(), "You Clicked: " + mTracks.get(position).getTrackName(), Toast.LENGTH_SHORT).show();
         }
     };
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+    }
 
 }

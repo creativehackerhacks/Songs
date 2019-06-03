@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#0E161D</color>
+    <color name="colorPrimaryDarkExact">#060A0D</color>
     <color name="colorPrimaryDark">#65060A0D</color>
     <color name="colorAccent">#FF6B6B</color>
 
@@ -14,8 +15,8 @@
     <color name="bottomTabSelectedColor">#57FFB6</color>
 
     <!-- Upper Fragment Toolbar Color -->
-    <color name="trackStartColor">#2541B2</color>
-    <color name="albumFadedColor">#005AD2</color>
+    <color name="trackStartColor">#01AC87</color>
+    <color name="albumStartColor">#005AD2</color>
     <color name="artistStartColor">#FF2767</color>
     <color name="playlistFadedColor">#5800E3</color>
 

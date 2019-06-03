@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="180dp"
         app:elevation="0dp"
-        android:background="@drawable/background_track_faded">
+        android:background="@drawable/background_artist_faded">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/f_artist_list_collapsing_toolbar"

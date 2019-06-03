@@ -2,54 +2,55 @@ package com.example.songs.innerFragments;
 
 
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.songs.R;
 import com.example.songs.activity.MainActivity;
 import com.example.songs.adapters.TrackRecyclerViewAdapter;
 import com.example.songs.archComp.TrackModel;
-import com.example.songs.base.BaseInnerFragment;
-import com.example.songs.data.loaders.TrackData;
-import com.example.songs.data.model.Track;
+import com.example.songs.data.model.Tracks;
 import com.example.songs.interfaces.RecyclerViewSimpleClickListener;
+import com.example.songs.util.dialogs.LongBottomSheetFragment;
+import com.example.songs.util.dialogs.LongBottomSheetFragment.LongBottomSheetListener;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TracksFragment extends BaseInnerFragment {
+public class TracksFragment extends Fragment {
 
     public static final String TRACK_FRAGMENT = TracksFragment.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
     private TrackRecyclerViewAdapter mTrackRecyclerViewAdapter;
     private RecyclerViewSimpleClickListener mRecyclerViewSimpleClickListener;
-    private List<Track> mTracks;
+    private List<Tracks> mTracks;
+    private int mCurrentTrackPos;
 
     private int trackLoader = -1;
 
@@ -112,8 +113,17 @@ public class TracksFragment extends BaseInnerFragment {
         mTrackRecyclerViewAdapter = new TrackRecyclerViewAdapter(getContext());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         mTrackRecyclerViewAdapter.setOnItemClickListener(mClickListener);
+        mTrackRecyclerViewAdapter.setOnItemLongClickListener(mLongClickListener);
 //        mRecyclerView.setHasFixedSize(true);
     }
+
+    // More Option Click Listener
+    private View.OnClickListener mMoreOptionClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(getContext(), "I AM CLICKING", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
         @TargetApi(VERSION_CODES.LOLLIPOP)
@@ -134,13 +144,54 @@ public class TracksFragment extends BaseInnerFragment {
     private View.OnLongClickListener mLongClickListener = new OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            showDialog();
+            RecyclerView.ViewHolder viewHolder = (ViewHolder) v.getTag();
+            int position = viewHolder.getAdapterPosition();
+            showDialog(position);
             return true;
         }
     };
 
-    private void showDialog() {
-
+    private void showDialog(int position) {
+        LongBottomSheetFragment longBottomSheetFragment = LongBottomSheetFragment.getInstance();
+        longBottomSheetFragment.show(getChildFragmentManager(), "long_bottomsheet_dialog");
+        longBottomSheetFragment.setLongBottomListener(new LongBottomSheetListener() {
+            @Override
+            public void onButtonClicked(int id) {
+                if(id == R.id.long_bottomsheet_delete) {
+                    Toast.makeText(getContext(), "Deleting the selected song", Toast.LENGTH_SHORT).show();
+                    deleteSingleSong(position);
+                }
+            }
+        });
     }
+
+    private void deleteSingleSong(int position) {
+        Log.e(TRACK_FRAGMENT, "deleteSingleSong: " + position);
+        Uri uri = Uri.parse(mTrackRecyclerViewAdapter.getAllTrackList().get(position).getTrackData());
+        Log.e(TRACK_FRAGMENT, "deleteSingleSong: " + uri.getPath());
+        Tracks currentTrack = mTrackRecyclerViewAdapter.getAllTrackList().get(position);
+//        deleteFile(uri.getPath(), currentTrack);
+    }
+
+    private void deleteFile(String path, Tracks track) {
+        if(path.startsWith("content://")) {
+            ContentResolver contentResolver = getContext().getContentResolver();
+            contentResolver.delete(Uri.parse(path), null, null);
+            mTrackRecyclerViewAdapter.deleteSingleRow(track);
+        } else {
+            File file = new File(path);
+            if(file.exists()) {
+                if(file.delete()) {
+                    Log.e(TRACK_FRAGMENT, "deleteFile: " + "File Deleted.");
+                    mTrackRecyclerViewAdapter.deleteSingleRow(track);
+                } else {
+                    Log.e(TRACK_FRAGMENT, "deleteFile: " + "Failed to Delete.");
+                }
+            } else {
+                Log.e(TRACK_FRAGMENT, "deleteFile: " + " File not exist.");
+            }
+        }
+    }
+
 
 }

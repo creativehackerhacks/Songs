@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.example.songs.R;
 import com.example.songs.activity.MainActivity;
 import com.example.songs.adapters.AlbumRecyclerViewAdapter;
+import com.example.songs.archComp.TrackModel;
 import com.example.songs.base.BaseInnerFragment;
 import com.example.songs.data.loaders.AlbumData;
 import com.example.songs.data.model.Albums;
@@ -21,17 +22,19 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AlbumsFragment extends BaseInnerFragment {
+public class AlbumsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private AlbumRecyclerViewAdapter mAlbumRecyclerViewAdapter;
@@ -40,6 +43,8 @@ public class AlbumsFragment extends BaseInnerFragment {
 
     private Toolbar mToolbar;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
+
+    private TrackModel mTrackModel;
 
 
     public AlbumsFragment() {
@@ -51,6 +56,12 @@ public class AlbumsFragment extends BaseInnerFragment {
         return albumsFragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mTrackModel = ViewModelProviders.of(this).get(TrackModel.class);
+    }
 
     @RequiresApi(api = VERSION_CODES.LOLLIPOP)
     @Override
@@ -78,13 +89,14 @@ public class AlbumsFragment extends BaseInnerFragment {
 
         setUpRecyclerView(container.getContext());
 
+        mAlbumRecyclerViewAdapter.loadAllAlbums(mTrackModel.getAlbums());
+        mRecyclerView.setAdapter(mAlbumRecyclerViewAdapter);
+
         return view;
     }
 
     private void setUpRecyclerView(Context context) {
-        mAlbumsList = new AlbumData(context).getAlbumArrayList();
-        mAlbumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(context, mAlbumsList);
-        mRecyclerView.setAdapter(mAlbumRecyclerViewAdapter);
+        mAlbumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(context);
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         mRecyclerView.setLayoutManager(new GridLayoutManager(context, 2));
         mAlbumRecyclerViewAdapter.setOnItemClickListener(mClickListener);
@@ -99,11 +111,11 @@ public class AlbumsFragment extends BaseInnerFragment {
             RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
             int position = viewHolder.getAdapterPosition();
 //            ((MainActivity) getActivity()).playAudio(mAlbumsList, position);
-            Toast.makeText(getContext(), "You Clicked: " + mAlbumsList.get(position).getAlbumName(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "You Clicked: " + mAlbumRecyclerViewAdapter.getAlbumsList().get(position).getTrackId(), Toast.LENGTH_SHORT).show();
 
             Fragment albumListFragment = AlbumListFragment.getInstance();
             Bundle bundle = new Bundle();
-            bundle.putLong("ALBUM_ID", mAlbumsList.get(position).getTrackId());
+            bundle.putLong("ALBUM_ID", mAlbumRecyclerViewAdapter.getAlbumsList().get(position).getTrackId());
             albumListFragment.setArguments(bundle);
             ((MainActivity) getActivity()).pushFragment(albumListFragment);
         }
