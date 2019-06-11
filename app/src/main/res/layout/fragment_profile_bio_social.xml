@@ -7,9 +7,12 @@
     tools:context=".innerFragments.profileBioFragments.ProfileBioSocialFragment">
 
     <TextView
+        android:id="@+id/f_p_b_s_addSocialAccount"
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
+        android:text="Add your other social profile" />
 
 </RelativeLayout>

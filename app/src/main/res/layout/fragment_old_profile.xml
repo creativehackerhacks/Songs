@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/f_profile_main_layout"
+    android:background="@color/colorPrimaryDarkExact"
     tools:artistContext=".topFragment.ProfileFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/f_profile_app_bar"
         android:layout_width="match_parent"
-        android:background="@color/colorPrimaryDarkExact"
+        android:background="@color/colorPrimary"
         android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -33,9 +34,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
                     android:background="@drawable/background_artist_faded"
                     android:scaleType="centerCrop"
-                    android:adjustViewBounds="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -59,12 +60,13 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:text="Name"
-                    android:textSize="18sp"
                     android:textColor="@android:color/white"
+                    android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="@+id/f_profile_inside_proImage"
                     app:layout_constraintTop_toBottomOf="@+id/f_profile_inside_proImage" />
 
                 <RelativeLayout
+                    android:id="@+id/relativeLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="16dp"
@@ -89,6 +91,31 @@
                     android:hint="username"
                     app:layout_constraintStart_toStartOf="@+id/f_profile_inside_proImage"
                     app:layout_constraintTop_toBottomOf="@+id/f_profile_inside_proName" />
+
+                <Button
+                    android:id="@+id/f_profile_edit_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="24dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:textSize="14sp"
+                    android:text="Edit Profile"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:background="@drawable/rounded_rect"
+                    app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toEndOf="@+id/f_profile_inside_proImage"
+                    app:layout_constraintTop_toBottomOf="@+id/f_profile_cover_image"
+                    app:layout_constraintVertical_bias="0.0" />
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -121,6 +148,8 @@
         <androidx.viewpager.widget.ViewPager
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="2dp"
+            android:background="@color/colorPrimary"
             android:id="@+id/f_profile_outer_viewPager" />
 
     </androidx.core.widget.NestedScrollView>

@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/J:/Runnable/AndroidStudio/plugins/android/lib/android.jar!/images/material_design_icons/av/ic_play_circle_outline_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/J:/Runnable/AndroidStudio/plugins/android/lib/android.jar!/images/material_design_icons/av/ic_album_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,8 +28,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_play_circle_white" />
+                            <entry key="color" value="fefefe" />
+                            <entry key="outputName" value="ic_albums_white" />
                             <entry key="sourceFile" value="C:\Users\Ansh" />
                           </map>
                         </option>

@@ -101,6 +101,8 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
             mTrackTitle = itemView.findViewById(R.id.row_card_track_trackName);
             mTrackSubtitle = itemView.findViewById(R.id.row_card_track_artistName);
             mTrackArtwork = itemView.findViewById(R.id.row_card_track_coverArt);
+            mMoreOptionIV = itemView.findViewById(R.id.row_card_track_more);
+
 
             itemView.setTag(this);
             itemView.setOnClickListener(mClickListener);

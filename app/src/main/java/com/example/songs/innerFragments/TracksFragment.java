@@ -13,7 +13,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.songs.R;
@@ -22,6 +24,7 @@ import com.example.songs.adapters.TrackRecyclerViewAdapter;
 import com.example.songs.archComp.TrackModel;
 import com.example.songs.data.model.Tracks;
 import com.example.songs.interfaces.RecyclerViewSimpleClickListener;
+import com.example.songs.util.Constants;
 import com.example.songs.util.dialogs.LongBottomSheetFragment;
 import com.example.songs.util.dialogs.LongBottomSheetFragment.LongBottomSheetListener;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -56,6 +59,8 @@ public class TracksFragment extends Fragment {
 
     private Toolbar mToolbar;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
+    private Button mShufflePlayButton;
+    private TextView mNumOfSongs;
 
     private TrackModel mTrackModel;
 
@@ -84,6 +89,8 @@ public class TracksFragment extends Fragment {
         mCollapsingToolbarLayout = view.findViewById(R.id.f_tracks_collapsing_toolbar);
         mCollapsingToolbarLayout.setTitle("Songs");
 
+        mNumOfSongs = view.findViewById(R.id.f_tracks_num_of_songs);
+        mShufflePlayButton = view.findViewById(R.id.f_tracks_shuffle_play);
         mToolbar = view.findViewById(R.id.f_tracks_toolbar);
         mRecyclerView = view.findViewById(R.id.f_tracks_recyclerView);
 
@@ -105,6 +112,9 @@ public class TracksFragment extends Fragment {
         Log.e(TRACK_FRAGMENT, "onCreateView: " +mTrackModel.getTracks().size());
 
         mRecyclerView.setAdapter(mTrackRecyclerViewAdapter);
+        String numOfSongs = String.valueOf(mTrackRecyclerViewAdapter.getAllTrackList().size());
+            mNumOfSongs.setText(numOfSongs + " songs");
+//        Log.e(TRACK_FRAGMENT, "onClick: Num of songs : " + numOfSongs);
 
         return view;
     }
@@ -133,13 +143,31 @@ public class TracksFragment extends Fragment {
             // This viewHolder will have all required values.
             RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
             int position = viewHolder.getAdapterPosition();
-            // viewHolder.getItemId();
-            // viewHolder.getItemViewType();
-            // viewHolder.itemView;
+
+//            viewHolder.itemView.getId();
+//            viewHolder.getItemViewType();
+//            viewHolder.itemView.getRootView();
+
+            Tracks recentTrack = mTrackRecyclerViewAdapter.getAllTrackList().get(position);
+//            addTracksToRecentlyPlayedList(recentTrack);
             ((MainActivity) getActivity()).playAudio(mTrackRecyclerViewAdapter.getAllTrackList(), position);
 //            Toast.makeText(getContext(), "You Clicked: " + mTracks.get(position).getTrackName(), Toast.LENGTH_SHORT).show();
+
         }
     };
+
+    // Adding and checking the recently played list.
+    private void addTracksToRecentlyPlayedList(Tracks tracks) {
+        if(!Constants.mRecentlyPlayedSongs.contains(tracks)) {
+            if(Constants.mRecentlyPlayedSongs.size() < 20) {
+                Constants.mRecentlyPlayedSongs.add(tracks);
+            } else {
+                int pos = Constants.mRecentlyPlayedSongs.size()-1;
+                Constants.mRecentlyPlayedSongs.remove(pos);
+                Constants.mRecentlyPlayedSongs.add(tracks);
+            }
+        }
+    }
 
     private View.OnLongClickListener mLongClickListener = new OnLongClickListener() {
         @Override

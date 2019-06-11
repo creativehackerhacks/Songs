@@ -32,5 +32,7 @@
     <color name="selectedTabTextColor">#4A4A4A</color>
     <color name="unselectedTabTextColor">#9B9293</color>
     <color name="tabBackground">#E8E8E8</color>
+    <color name="btn_shuffle_gradient_start">#CC157D</color>
+    <color name="btn_shuffle_gradient_end">#610099</color>
 
 </resources>

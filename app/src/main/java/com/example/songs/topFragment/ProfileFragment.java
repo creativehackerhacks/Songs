@@ -2,13 +2,18 @@ package com.example.songs.topFragment;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -21,11 +26,31 @@ import com.example.songs.innerFragments.profileFragments.ProfileFollowingFragmen
 import com.example.songs.innerFragments.profileFragments.ProfilePostsFragment;
 import com.example.songs.pagerAdapter.ProfileViewPagerAdapter;
 import com.example.songs.pagerAdapter.ViewPagerAdapter;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.google.firebase.storage.UploadTask.TaskSnapshot;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -35,7 +60,14 @@ import static android.app.Activity.RESULT_OK;
  */
 public class ProfileFragment extends Fragment {
 
+    public static final String PROFILE_FRAGMENT = ProfileFragment.class.getSimpleName();
+
+    // For FireBase
+    private StorageReference mStorageReference;
+    private DatabaseReference mDatabaseReference;
+
     private ImageView mCoverImage, mProfileImage;
+    private Uri mProImageUri, mCoverImageUri;
 
     private ViewPagerAdapter mViewPagerAdapter;
     private ProfileViewPagerAdapter mProfileViewPagerAdapter;
@@ -54,6 +86,13 @@ public class ProfileFragment extends Fragment {
         return profileFragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mStorageReference = FirebaseStorage.getInstance().getReference("userProImages");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("userProData");
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,7 +111,7 @@ public class ProfileFragment extends Fragment {
         mProfileViewPagerAdapter = new ProfileViewPagerAdapter(getChildFragmentManager());
 
         mViewPagerAdapter.addFragment(new ProfileBioTextFragment());
-        mViewPagerAdapter.addFragment(new ProfileBioSocialFragment());
+        mViewPagerAdapter.addFragment(ProfileBioSocialFragment.getInstance());
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mProfileViewPagerAdapter.addFragment(new ProfilePostsFragment(), "Posts");
@@ -88,8 +127,48 @@ public class ProfileFragment extends Fragment {
         mCoverImage.setOnClickListener(mImageClick);
         mProfileImage.setOnClickListener(mImageClick);
 
-
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+//        retrieveImages();
+    }
+
+    private void retrieveImages() {
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("userProData");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child("userCoverImage").exists()) {
+                    String coverImage = dataSnapshot.child("userCoverImage").getValue().toString();
+                    Log.e(PROFILE_FRAGMENT, "onDataChange: COVER IMAGE --  " + coverImage);
+                    Glide.with(getContext().getApplicationContext()).load(coverImage)
+                            .into(mCoverImage);
+                }
+                if(dataSnapshot.child("userProImage").exists()) {
+                    String proImage = dataSnapshot.child("userProImage").getValue().toString();
+                    Log.e(PROFILE_FRAGMENT, "onDataChange: PRO IMAGE --  " + proImage);
+                    Glide.with(getContext().getApplicationContext()).load(proImage)
+                            .apply(new RequestOptions().circleCropTransform())
+                            .into(mProfileImage);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        retrieveImages();
     }
 
     private View.OnClickListener mImageClick = new OnClickListener() {
@@ -115,17 +194,96 @@ public class ProfileFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if(requestCode == 1) {
-                Uri selectedImage = data.getData();
-                Glide.with(getContext()).load(selectedImage)
-                        .into(mCoverImage);
+                mCoverImageUri = data.getData();
+
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media
+                            .getBitmap(getContext().getContentResolver(), mCoverImageUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                uploadFile(mCoverImageUri, requestCode);
             }
             if (requestCode == 2) {
-                Uri selectedImage = data.getData();
-                Glide.with(getContext()).load(selectedImage)
-                        .apply(new RequestOptions().circleCropTransform())
-                        .into(mProfileImage);
+                mProImageUri = data.getData();
+
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media
+                            .getBitmap(getContext().getContentResolver(), mProImageUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                uploadFile(mProImageUri, requestCode);
             }
         }
     }
+
+    private void uploadFile(Uri resultUri, int requestCode) {
+//        String uniqueTime = System.currentTimeMillis() + ".jpg";
+        // checking if file is available
+        switch (requestCode) {
+            case 1:
+                // getting the storage reference
+                StorageReference coverStorageReference = mStorageReference.child("coverImage");
+
+                UploadTask coverUploadTask = coverStorageReference.putFile(resultUri);
+                Task<Uri> coverUriTask = coverUploadTask.continueWithTask(new Continuation<TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<TaskSnapshot> task) throws Exception {
+                        if(!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return coverStorageReference.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        Toast.makeText(getContext(), "Cover Uploaded", Toast.LENGTH_SHORT).show();
+                        Uri coverUri = task.getResult();
+
+                        // creating the upload object to store uploaded image.
+//                            String uploadId = mDatabaseReference.push().getKey();
+                        mDatabaseReference.child("userCoverImage").setValue(coverUri.toString());
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+                break;
+            case 2:
+                // getting the storage reference
+                StorageReference proStorageReference = mStorageReference.child("proImage");
+
+                UploadTask proUploadTask = proStorageReference.putFile(resultUri);
+                Task<Uri> proUriTask = proUploadTask.continueWithTask(new Continuation<TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<TaskSnapshot> task) throws Exception {
+                        if(!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return proStorageReference.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        Toast.makeText(getContext(), "Cover Uploaded", Toast.LENGTH_SHORT).show();
+                        Uri proUri = task.getResult();
+
+                        // creating the upload object to store uploaded image.
+//                            String uploadId = mDatabaseReference.push().getKey();
+                        mDatabaseReference.child("userProImage").setValue(proUri.toString());
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+                break;
+        }
+    }
+
 
 }

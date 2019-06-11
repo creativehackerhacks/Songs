@@ -22,5 +22,8 @@ The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for t
     <string name="current_user_bio">NF is the stage name of rapper and composer Nate Feuerstein from Gladwin, Michigan.</string>
     <string name="bottomsheet_dialog_delete">Delete</string>
 
+    <!-- For FireBase Login Auth-->
+    <string name="facebook_application_id" translatable="false">2258132710940436</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb2258132710940436</string>
 
 </resources>

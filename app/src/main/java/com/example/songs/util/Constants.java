@@ -1,9 +1,15 @@
 package com.example.songs.util;
 
+import com.example.songs.data.model.Tracks;
+
+import java.util.ArrayList;
+
 public class Constants {
 
     private static final String PACKAGENAME = "com.example.songs.";
 
+    // ArrayList for recently played songs
+    public static ArrayList<Tracks> mRecentlyPlayedSongs = new ArrayList<>();
     /*
     Choices
      */

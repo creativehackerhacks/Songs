@@ -30,18 +30,28 @@ import com.example.songs.topFragment.SongsFragment;
 import com.example.songs.util.Constants;
 import com.example.songs.util.touchListeners.CustomSwipeTouchListener;
 import com.example.songs.service.SimpleMusicService;
+import com.facebook.login.LoginManager;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.AuthUI.IdpConfig;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemReselectedListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 import com.ncapdevi.fragnav.FragNavController;
 import com.ncapdevi.fragnav.FragNavSwitchController;
 import com.ncapdevi.fragnav.FragNavTransactionOptions;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -82,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         hidestatusBar();
 
@@ -126,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
         mPlayPauseBtn.setOnClickListener(mPlayPauseToggle);
     }
+
 
     private void hidestatusBar() {
         // Hide Status Bar
@@ -373,13 +386,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
         if (!isServiceBound) {
             Intent intent = new Intent(this, SimpleMusicService.class);
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
         registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.PLAYBACK_STATE));
     }
-
 
     public void hideStatusBar() {
         // Hide status bar
