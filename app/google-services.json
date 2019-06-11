@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "47790194922",
+    "firebase_url": "https://songs-c504d.firebaseio.com",
+    "project_id": "songs-c504d",
+    "storage_bucket": "songs-c504d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47790194922:android:68cf4eb5d0f36d85",
+        "android_client_info": {
+          "package_name": "com.example.songs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "47790194922-m5ierm361gb5lfq9cr8j43r8g5ger65g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.songs",
+            "certificate_hash": "700beb7a58145e3db1d3c57d0a99efbf677a2ac6"
+          }
+        },
+        {
+          "client_id": "47790194922-fi11f9p5vt3a66kdjtc5getvng6gl3n1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDumyvGYnQFgyRcwRV7iyH3ZqLN8bsun2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "47790194922-fi11f9p5vt3a66kdjtc5getvng6gl3n1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
