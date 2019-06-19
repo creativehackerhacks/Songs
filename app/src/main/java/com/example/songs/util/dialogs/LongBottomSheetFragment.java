@@ -22,6 +22,7 @@ public class LongBottomSheetFragment extends BottomSheetDialogFragment {
 
     private LongBottomSheetListener mLongBottomSheetListener;
     private LinearLayout mDeleteLinearLayout;
+    private LinearLayout mLongBottomSheetSend;
 
     private LongBottomSheetFragment() {
 
@@ -42,7 +43,14 @@ public class LongBottomSheetFragment extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.long_bottomsheet_fragment, container, false);
 
         mDeleteLinearLayout = view.findViewById(R.id.long_bottomsheet_delete);
+        mLongBottomSheetSend = view.findViewById(R.id.long_bottomsheet_send);
+
         mDeleteLinearLayout.setOnClickListener(v-> {
+            mLongBottomSheetListener.onButtonClicked(v.getId());
+            dismiss();
+        });
+
+        mLongBottomSheetSend.setOnClickListener(v -> {
             mLongBottomSheetListener.onButtonClicked(v.getId());
             dismiss();
         });

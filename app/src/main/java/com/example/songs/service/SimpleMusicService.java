@@ -19,7 +19,7 @@ import com.example.songs.activity.MainActivity;
 import com.example.songs.data.model.Tracks;
 import com.example.songs.singleton.MediaPlayerSingleton;
 import com.example.songs.util.AudioWidget;
-import com.example.songs.util.Constants;
+import com.example.songs.util.UtilConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     }
 
     private void initAudioWidget() {
-        mBroadcastIntent = new Intent(Constants.PLAYBACK_STATE);
+        mBroadcastIntent = new Intent(UtilConstants.PLAYBACK_STATE);
     }
 
     private void initMediaData() {

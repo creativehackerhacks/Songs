@@ -27,31 +27,22 @@ import com.example.songs.innerFragments.NowPlayingFragment;
 import com.example.songs.topFragment.ProfileFragment;
 import com.example.songs.topFragment.SettingsFragment;
 import com.example.songs.topFragment.SongsFragment;
-import com.example.songs.util.Constants;
+import com.example.songs.util.UtilConstants;
+import com.example.songs.util.FirebaseDatabaseUtils;
 import com.example.songs.util.touchListeners.CustomSwipeTouchListener;
 import com.example.songs.service.SimpleMusicService;
-import com.facebook.login.LoginManager;
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.AuthUI.IdpConfig;
-import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemReselectedListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 import com.ncapdevi.fragnav.FragNavController;
 import com.ncapdevi.fragnav.FragNavSwitchController;
 import com.ncapdevi.fragnav.FragNavTransactionOptions;
 
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -93,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseDatabaseUtils.getDatabase();
 
         hidestatusBar();
 
@@ -391,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, SimpleMusicService.class);
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
-        registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.PLAYBACK_STATE));
+        registerReceiver(mBroadcastReceiver, new IntentFilter(UtilConstants.PLAYBACK_STATE));
     }
 
     public void hideStatusBar() {

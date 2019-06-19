@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.songs.R;
@@ -21,6 +22,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -31,6 +33,7 @@ import androidx.fragment.app.Fragment;
  */
 public class SettingsFragment extends Fragment {
 
+    private TextView mStringUserName;
     private Button mSignOut;
 
     public SettingsFragment() {
@@ -49,7 +52,15 @@ public class SettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        mStringUserName = view.findViewById(R.id.f_settings_string_user_name);
         mSignOut = view.findViewById(R.id.f_settings_sing_out);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String currentUserEmail = user.getEmail();
+        int index = currentUserEmail.indexOf('@');
+        String currentUser = currentUserEmail.substring(0, index);
+
+        mStringUserName.setText(currentUser);
 
         mSignOut.setOnClickListener(mOnClickListener);
 

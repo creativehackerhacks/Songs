@@ -4,7 +4,7 @@ import com.example.songs.data.model.Tracks;
 
 import java.util.ArrayList;
 
-public class Constants {
+public class UtilConstants {
 
     private static final String PACKAGENAME = "com.example.songs.";
 
@@ -21,5 +21,9 @@ public class Constants {
     public static final String Five = "5";
 
     public static final String PLAYBACK_STATE = PACKAGENAME + "PLAYBACK_STATE";
+
+    // External Packages
+    public static final String PACKAGE_FACEBOOK = "com.facebook.katana";
+    public static final String PACKAGE_INSTAGRAM = "com.instagram.android";
 
 }

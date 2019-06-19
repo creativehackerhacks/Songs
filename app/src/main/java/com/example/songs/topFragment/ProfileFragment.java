@@ -12,12 +12,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.songs.R;
+import com.example.songs.activity.MainActivity;
+import com.example.songs.data.model.UserProfile;
+import com.example.songs.innerFragments.ProfileEdit;
 import com.example.songs.innerFragments.profileBioFragments.ProfileBioSocialFragment;
 import com.example.songs.innerFragments.profileBioFragments.ProfileBioTextFragment;
 import com.example.songs.innerFragments.profileFragments.ProfileCirclesFragment;
@@ -26,12 +31,15 @@ import com.example.songs.innerFragments.profileFragments.ProfileFollowingFragmen
 import com.example.songs.innerFragments.profileFragments.ProfilePostsFragment;
 import com.example.songs.pagerAdapter.ProfileViewPagerAdapter;
 import com.example.songs.pagerAdapter.ViewPagerAdapter;
+import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -63,6 +71,7 @@ public class ProfileFragment extends Fragment {
     public static final String PROFILE_FRAGMENT = ProfileFragment.class.getSimpleName();
 
     // For FireBase
+    private FirebaseUser mFirebaseUser;
     private StorageReference mStorageReference;
     private DatabaseReference mDatabaseReference;
 
@@ -72,9 +81,16 @@ public class ProfileFragment extends Fragment {
     private ViewPagerAdapter mViewPagerAdapter;
     private ProfileViewPagerAdapter mProfileViewPagerAdapter;
     private ViewPager mViewPager;
+    private Button mEditProfileBtn;
+
+    private String strName;
+    private String strUserName;
+    private TextView mName;
+    private TextView mUserName;
 
     private ViewPager mOuterViewPager;
     private TabLayout mOuterTabLayout;
+    private UserProfile mUserProfile;
 
 
     public ProfileFragment() {
@@ -90,8 +106,12 @@ public class ProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mStorageReference = FirebaseStorage.getInstance().getReference("userProImages");
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("userProData");
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        mStorageReference = FirebaseStorage.getInstance().getReference().child("users").child(mFirebaseUser.getUid()).child("userProfileImages");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("users").child(mFirebaseUser.getUid());
+
+        mUserProfile = new UserProfile();
     }
 
     @Override
@@ -103,6 +123,10 @@ public class ProfileFragment extends Fragment {
         mCoverImage = view.findViewById(R.id.f_profile_cover_image);
         mProfileImage = view.findViewById(R.id.f_profile_inside_proImage);
         mViewPager = view.findViewById(R.id.f_profile_viewPager);
+        mEditProfileBtn = view.findViewById(R.id.f_profile_edit_profile);
+
+        mName = view.findViewById(R.id.f_profile_inside_proName);
+        mUserName = view.findViewById(R.id.f_profile_inside_proUserName);
 
         mOuterViewPager = view.findViewById(R.id.f_profile_outer_viewPager);
         mOuterTabLayout = view.findViewById(R.id.outer_tabLayout);
@@ -123,22 +147,67 @@ public class ProfileFragment extends Fragment {
 
         mOuterTabLayout.setupWithViewPager(mOuterViewPager);
 
+        retrieveUserData();
 
         mCoverImage.setOnClickListener(mImageClick);
         mProfileImage.setOnClickListener(mImageClick);
 
+        mEditProfileBtn.setOnClickListener(mProfileEditBtnClick);
+
         return view;
     }
+
+    private void retrieveUserData() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference userRootDataRef = FirebaseDatabase.getInstance().getReference()
+                .child("users").child(user.getUid());
+        DatabaseReference userProDataRef = userRootDataRef.child("userProData");
+        userProDataRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue() != null) {
+                    strName = dataSnapshot.child("name").getValue().toString();
+                    strUserName = dataSnapshot.child("username").getValue().toString();
+                    mUserProfile.setName(strName);
+                    mUserProfile.setUserName(strUserName);
+                    setUserData();
+                    Log.e(PROFILE_FRAGMENT, "onDataChange: NAME -- " + strName + " USERNAME -- " + strUserName);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Firebase Retreive Failed.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setUserData() {
+        mName.setText(mUserProfile.getName());
+        mUserName.setText(mUserProfile.getUserName());
+        Log.e(PROFILE_FRAGMENT, "setUserData: setting Name== " + mUserProfile.getName());
+    }
+
+    private View.OnClickListener mProfileEditBtnClick = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+//            Toast.makeText(getContext(), "Editing Profile", Toast.LENGTH_SHORT).show();
+            ((MainActivity) getActivity()).pushFragment(ProfileEdit.getInstance());
+        }
+    };
+
+
 
     @Override
     public void onStart() {
         super.onStart();
-//        retrieveImages();
+
     }
 
     private void retrieveImages() {
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("userProData");
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("users").child(mFirebaseUser.getUid());
 
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -146,13 +215,13 @@ public class ProfileFragment extends Fragment {
                 if(dataSnapshot.child("userCoverImage").exists()) {
                     String coverImage = dataSnapshot.child("userCoverImage").getValue().toString();
                     Log.e(PROFILE_FRAGMENT, "onDataChange: COVER IMAGE --  " + coverImage);
-                    Glide.with(getContext().getApplicationContext()).load(coverImage)
+                    Glide.with(getContext()).load(coverImage)
                             .into(mCoverImage);
                 }
                 if(dataSnapshot.child("userProImage").exists()) {
                     String proImage = dataSnapshot.child("userProImage").getValue().toString();
                     Log.e(PROFILE_FRAGMENT, "onDataChange: PRO IMAGE --  " + proImage);
-                    Glide.with(getContext().getApplicationContext()).load(proImage)
+                    Glide.with(getContext()).load(proImage)
                             .apply(new RequestOptions().circleCropTransform())
                             .into(mProfileImage);
                 }
@@ -268,7 +337,7 @@ public class ProfileFragment extends Fragment {
                 }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {
-                        Toast.makeText(getContext(), "Cover Uploaded", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Pro Uploaded", Toast.LENGTH_SHORT).show();
                         Uri proUri = task.getResult();
 
                         // creating the upload object to store uploaded image.

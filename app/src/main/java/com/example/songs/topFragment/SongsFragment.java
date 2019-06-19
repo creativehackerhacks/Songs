@@ -18,16 +18,13 @@ import com.example.songs.adapters.RecentlyPlayedRecyclerViewAdapter;
 import com.example.songs.innerFragments.AlbumsFragment;
 import com.example.songs.innerFragments.ArtistFragment;
 import com.example.songs.innerFragments.TracksFragment;
-import com.example.songs.util.Constants;
+import com.example.songs.util.UtilConstants;
 import com.example.songs.util.recyclerviewUtil.GridSpaceItemDecoration;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-
-import org.w3c.dom.Text;
 
 
 /**
@@ -106,12 +103,12 @@ public class SongsFragment extends Fragment {
         GridSpaceItemDecoration gridSpaceItemDecoration = new GridSpaceItemDecoration(context, R.dimen.item_offset);
         mRecyclerView.addItemDecoration(gridSpaceItemDecoration);
         mRecyclerView.setLayoutManager(gridLayoutManager);
-        if(Constants.mRecentlyPlayedSongs.isEmpty()) {
+        if(UtilConstants.mRecentlyPlayedSongs.isEmpty()) {
             mRecyclerView.setVisibility(View.GONE);
             mEmptyTextView.setVisibility(View.VISIBLE);
         } else {
             mRecyclerView.setVisibility(View.VISIBLE);
-            mRecentlyPlayedRecyclerViewAdapter.loadRecentSongs(Constants.mRecentlyPlayedSongs);
+            mRecentlyPlayedRecyclerViewAdapter.loadRecentSongs(UtilConstants.mRecentlyPlayedSongs);
             mEmptyTextView.setVisibility(View.GONE);
         }
         loadRecentlyPlayedSongs();
@@ -124,13 +121,13 @@ public class SongsFragment extends Fragment {
         RecyclerView.ViewHolder viewHolder = (ViewHolder) v.getTag();
         int position = viewHolder.getAdapterPosition();
 
-//        ((MainActivity) getActivity()).playAudio(Constants.mRecentlyPlayedSongs, position);
+//        ((MainActivity) getActivity()).playAudio(UtilConstants.mRecentlyPlayedSongs, position);
     };
 
     private void loadRecentlyPlayedSongs() {
-        if(Constants.mRecentlyPlayedSongs != null) {
-            mRecentlyPlayedRecyclerViewAdapter.loadRecentSongs(Constants.mRecentlyPlayedSongs);
-            Log.e(SONGS_FRAGMENT, "loadRecentlyPlayedSongs: " + Constants.mRecentlyPlayedSongs.size());
+        if(UtilConstants.mRecentlyPlayedSongs != null) {
+            mRecentlyPlayedRecyclerViewAdapter.loadRecentSongs(UtilConstants.mRecentlyPlayedSongs);
+            Log.e(SONGS_FRAGMENT, "loadRecentlyPlayedSongs: " + UtilConstants.mRecentlyPlayedSongs.size());
         }
     }
 

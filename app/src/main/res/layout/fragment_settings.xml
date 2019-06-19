@@ -6,10 +6,21 @@
     tools:artistContext=".topFragment.SettingsFragment">
 
     <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:id="@+id/f_settings_string_user_name" />
+
     <Button
         android:id="@+id/f_settings_sing_out"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/f_settings_string_user_name"
+        android:layout_marginTop="24dp"
         android:text="Sign Out"
         android:layout_centerInParent="true"/>
 

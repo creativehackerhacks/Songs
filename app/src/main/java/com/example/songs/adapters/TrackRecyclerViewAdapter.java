@@ -3,10 +3,13 @@ package com.example.songs.adapters;
 import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,11 +25,14 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter.TrackViewHolder> {
+public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter.TrackViewHolder> implements Filterable {
 
     private Uri mArtWorkUri = Uri.parse("content://media/external/audio/albumart");
     private Context mContext;
+
     private List<Tracks> mNewTracks = new ArrayList<>();
+    private List<Tracks> mAllTracks = new ArrayList<>();
+
     private View.OnClickListener mClickListener;
     private View.OnLongClickListener mLongClickListener;
 
@@ -40,6 +46,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         }
         mNewTracks.clear();
         mNewTracks.addAll(tracks);
+        mAllTracks.addAll(mNewTracks);
         notifyDataSetChanged();
     }
 
@@ -47,11 +54,17 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         return mNewTracks;
     }
 
+
     public void deleteSingleRow(Tracks tracks) {
         if(mNewTracks==null) {
             return;
         }
         mNewTracks.remove(tracks);
+        notifyDataSetChanged();
+    }
+
+    public void filterList(List<Tracks> tracks) {
+        mNewTracks = tracks;
         notifyDataSetChanged();
     }
 
@@ -90,6 +103,39 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         notifyDataSetChanged();
     }
 
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Tracks> filteredList = new ArrayList<>();
+
+                if(constraint == null || constraint.length() == 0) {
+                    filteredList.addAll(mAllTracks);
+                } else {
+                    String filterPattern = constraint.toString().toLowerCase().trim();
+
+                    for (Tracks track : mAllTracks) {
+                        if(track.getTrackName().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(track);
+                        }
+                    }
+                }
+                FilterResults results = new FilterResults();
+                results.values = filteredList;
+
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                mNewTracks.clear();
+                mNewTracks.addAll((List) results.values);
+                notifyDataSetChanged();
+            }
+        };
+    }
+
     public class TrackViewHolder extends RecyclerView.ViewHolder {
         private TextView mTrackTitle, mTrackSubtitle;
         public ImageView mTrackArtwork;
@@ -102,7 +148,6 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
             mTrackSubtitle = itemView.findViewById(R.id.row_card_track_artistName);
             mTrackArtwork = itemView.findViewById(R.id.row_card_track_coverArt);
             mMoreOptionIV = itemView.findViewById(R.id.row_card_track_more);
-
 
             itemView.setTag(this);
             itemView.setOnClickListener(mClickListener);

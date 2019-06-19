@@ -25,5 +25,8 @@ The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for t
     <!-- For FireBase Login Auth-->
     <string name="facebook_application_id" translatable="false">2258132710940436</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb2258132710940436</string>
+    <string name="bottomsheet_dialog_send_song_request">Send Song</string>
+    <string name="row_profile_list_name">Name</string>
+    <string name="row_profile_list_userName">Username</string>
 
 </resources>

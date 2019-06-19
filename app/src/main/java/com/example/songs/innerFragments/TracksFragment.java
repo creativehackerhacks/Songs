@@ -4,9 +4,12 @@ package com.example.songs.innerFragments;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +17,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,12 +27,19 @@ import com.example.songs.adapters.TrackRecyclerViewAdapter;
 import com.example.songs.archComp.TrackModel;
 import com.example.songs.data.model.Tracks;
 import com.example.songs.interfaces.RecyclerViewSimpleClickListener;
-import com.example.songs.util.Constants;
+import com.example.songs.util.UtilConstants;
 import com.example.songs.util.dialogs.LongBottomSheetFragment;
 import com.example.songs.util.dialogs.LongBottomSheetFragment.LongBottomSheetListener;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.Nullable;
@@ -49,6 +59,11 @@ public class TracksFragment extends Fragment {
 
     public static final String TRACK_FRAGMENT = TracksFragment.class.getSimpleName();
 
+    // Firebase
+    private FirebaseUser mFirebaseUser;
+    private DatabaseReference mDatabaseReference;
+    private StorageReference mStorageReference;
+
     private RecyclerView mRecyclerView;
     private TrackRecyclerViewAdapter mTrackRecyclerViewAdapter;
     private RecyclerViewSimpleClickListener mRecyclerViewSimpleClickListener;
@@ -61,7 +76,7 @@ public class TracksFragment extends Fragment {
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
     private Button mShufflePlayButton;
     private TextView mNumOfSongs;
-
+    private EditText mSearchEditTextView;
     private TrackModel mTrackModel;
 
     public TracksFragment() {
@@ -78,6 +93,12 @@ public class TracksFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mTrackModel = ViewModelProviders.of(getActivity()).get(TrackModel.class);
+
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+//        mStorageReference = FirebaseStorage.getInstance().getReference().child("users").child(mFirebaseUser.getUid()).child("userTrackSendData");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("users").child(mFirebaseUser.getUid()).child("userSendSongs");
+
     }
 
     @Override
@@ -93,6 +114,7 @@ public class TracksFragment extends Fragment {
         mShufflePlayButton = view.findViewById(R.id.f_tracks_shuffle_play);
         mToolbar = view.findViewById(R.id.f_tracks_toolbar);
         mRecyclerView = view.findViewById(R.id.f_tracks_recyclerView);
+        mSearchEditTextView = view.findViewById(R.id.f_tracks_search_ETV);
 
         AppCompatActivity appCompatActivity = ((AppCompatActivity) getActivity());
         appCompatActivity.setSupportActionBar(mToolbar);
@@ -116,8 +138,40 @@ public class TracksFragment extends Fragment {
             mNumOfSongs.setText(numOfSongs + " songs");
 //        Log.e(TRACK_FRAGMENT, "onClick: Num of songs : " + numOfSongs);
 
+
+        mSearchEditTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mTrackRecyclerViewAdapter.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+//                filter(s.toString());
+            }
+        });
+
         return view;
     }
+
+    private void filter(String text) {
+        List<Tracks> temp = new ArrayList();
+        for(Tracks d: mTrackRecyclerViewAdapter.getAllTrackList()){
+            //or use .equal(text) with you want equal match
+            //use .toLowerCase() for better matches
+            if(d.getTrackName().contains(text)){
+                temp.add(d);
+            }
+        }
+        //update recyclerview
+        mTrackRecyclerViewAdapter.filterList(temp);
+    }
+
 
     private void setUpRecyclerView(Context context) {
         mTrackRecyclerViewAdapter = new TrackRecyclerViewAdapter(getContext());
@@ -144,10 +198,6 @@ public class TracksFragment extends Fragment {
             RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
             int position = viewHolder.getAdapterPosition();
 
-//            viewHolder.itemView.getId();
-//            viewHolder.getItemViewType();
-//            viewHolder.itemView.getRootView();
-
             Tracks recentTrack = mTrackRecyclerViewAdapter.getAllTrackList().get(position);
 //            addTracksToRecentlyPlayedList(recentTrack);
             ((MainActivity) getActivity()).playAudio(mTrackRecyclerViewAdapter.getAllTrackList(), position);
@@ -158,13 +208,13 @@ public class TracksFragment extends Fragment {
 
     // Adding and checking the recently played list.
     private void addTracksToRecentlyPlayedList(Tracks tracks) {
-        if(!Constants.mRecentlyPlayedSongs.contains(tracks)) {
-            if(Constants.mRecentlyPlayedSongs.size() < 20) {
-                Constants.mRecentlyPlayedSongs.add(tracks);
+        if(!UtilConstants.mRecentlyPlayedSongs.contains(tracks)) {
+            if(UtilConstants.mRecentlyPlayedSongs.size() < 20) {
+                UtilConstants.mRecentlyPlayedSongs.add(tracks);
             } else {
-                int pos = Constants.mRecentlyPlayedSongs.size()-1;
-                Constants.mRecentlyPlayedSongs.remove(pos);
-                Constants.mRecentlyPlayedSongs.add(tracks);
+                int pos = UtilConstants.mRecentlyPlayedSongs.size()-1;
+                UtilConstants.mRecentlyPlayedSongs.remove(pos);
+                UtilConstants.mRecentlyPlayedSongs.add(tracks);
             }
         }
     }
@@ -189,8 +239,37 @@ public class TracksFragment extends Fragment {
                     Toast.makeText(getContext(), "Deleting the selected song", Toast.LENGTH_SHORT).show();
                     deleteSingleSong(position);
                 }
+                if(id == R.id.long_bottomsheet_send) {
+                    Toast.makeText(getContext(), "Sending the selected song", Toast.LENGTH_SHORT).show();
+                    sendSong(position);
+                }
             }
         });
+    }
+
+    private void sendSong(int position) {
+        Uri uri = Uri.parse(mTrackRecyclerViewAdapter.getAllTrackList().get(position).getTrackData());
+        ContentResolver contentResolver = getContext().getContentResolver();
+        long currentTrackId = mTrackRecyclerViewAdapter.getAllTrackList().get(position).getTrackId();
+
+        Log.e(TRACK_FRAGMENT, "sendSong: -- Get Uri: " + uri);
+        Log.e(TRACK_FRAGMENT, "sendSong -- Get Path: " + uri.getPath());
+
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(uri.getPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mediaPlayer.start();
+
+
+//        mDatabaseReference.setValue(uri.getPath());
     }
 
     private void deleteSingleSong(int position) {

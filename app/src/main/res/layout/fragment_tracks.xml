@@ -29,7 +29,20 @@
                 android:id="@+id/f_tracks_toolbar"
                 app:layout_collapseMode="pin"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark"
-                app:layout_collapseParallaxMultiplier="0.3" />
+                app:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:layout_collapseParallaxMultiplier="0.3">
+
+                <EditText
+                    android:id="@+id/f_tracks_search_ETV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="16dp"
+                    android:paddingLeft="8dp"
+                    android:hint="Search Song"/>
+
+            </androidx.appcompat.widget.Toolbar>
 
             <LinearLayout
                 android:layout_width="match_parent"
