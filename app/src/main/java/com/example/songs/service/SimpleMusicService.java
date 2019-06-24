@@ -2,7 +2,9 @@ package com.example.songs.service;
 
 import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -10,6 +12,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build.VERSION_CODES;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore.Audio.Media;
@@ -19,13 +22,29 @@ import com.example.songs.activity.MainActivity;
 import com.example.songs.data.model.Tracks;
 import com.example.songs.singleton.MediaPlayerSingleton;
 import com.example.songs.util.AudioWidget;
+import com.example.songs.util.Extras;
 import com.example.songs.util.UtilConstants;
+import com.example.songs.util.notify.NotificationGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.Nullable;
+
+import static com.example.songs.util.UtilConstants.ITEM_ADDED;
+import static com.example.songs.util.UtilConstants.META_CHANGED;
+import static com.example.songs.util.UtilConstants.ORDER_CHANGED;
+import static com.example.songs.util.UtilConstants.PLAYSTATE_CHANGED;
+import static com.example.songs.util.UtilConstants.POSITION_CHANGED;
+import static com.example.songs.util.UtilConstants.QUEUE_CHANGED;
+import static com.example.songs.util.UtilConstants.SONG_ALBUM;
+import static com.example.songs.util.UtilConstants.SONG_ALBUM_ID;
+import static com.example.songs.util.UtilConstants.SONG_ARTIST;
+import static com.example.songs.util.UtilConstants.SONG_ID;
+import static com.example.songs.util.UtilConstants.SONG_PATH;
+import static com.example.songs.util.UtilConstants.SONG_TITLE;
+import static com.example.songs.util.UtilConstants.SONG_TRACK_NUMBER;
 
 
 @TargetApi(VERSION_CODES.LOLLIPOP)
@@ -39,9 +58,13 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     private List<Tracks> mTracksList = new ArrayList<>();
     private List<Tracks> mOgList = new ArrayList<>();
     private Tracks mSingleTracks;
+
     private boolean isRunning = false;
+    private boolean onPlayNotify = false;
     private boolean paused;
     private boolean fastPlay;
+    private boolean mLostAudioFocus = false;
+
     private int playingIndex;
     private int trackDuration;
 
@@ -122,6 +145,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     }
 
     public void startCurrentTrack(Tracks tracks) {
+        updateService("LOL");
         if (returnpos() != -1 && mTracksList.size() > 0) {
             if (MediaPlayerSingleton.getInstance().getMediaPlayer() == null) {
                 return;
@@ -156,10 +180,10 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     }
 
     public void finalPlay() {
+        updateService(PLAYSTATE_CHANGED);
         paused = false;
         isRunning = true;
         this.sendBroadcast(mBroadcastIntent);
-//        Log.d(TAG, "finalPlay: Play");
     }
 
     public void pause() {
@@ -171,6 +195,8 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     }
 
     public void finalPause() {
+        onPlayNotify = true;
+        updateService(PLAYSTATE_CHANGED);
         paused = true;
         isRunning = false;
         this.sendBroadcast(mBroadcastIntent);
@@ -259,7 +285,9 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     // Override methods
     @Override
     public void onAudioFocusChange(int focusChange) {
-
+//        switch (focusChange) {
+//
+//        }
     }
 
     @Override
@@ -268,7 +296,61 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
             return;
         }
         playNext(true);
+        int pos = mTracksList.size() - 1;
+        if (mTracksList.get(pos) != null) {
+            updateService(PLAYSTATE_CHANGED);
+        }
+//        Extras.getInstance().saveSeekServices(0);
     }
+
+    private void updateService(String updateServices) {
+        NotificationGenerator.buildNotification(SimpleMusicService.this, updateServices);
+//        Intent intent = new Intent(updateServices);
+//        if (updateServices.equals(PLAYSTATE_CHANGED) && intent.getAction().equals(PLAYSTATE_CHANGED)) {
+//            sendBroadcast(intent);
+//        } else if (updateServices.equals(META_CHANGED) && intent.getAction().equals(META_CHANGED)) {
+//            Bundle bundle = new Bundle();
+////            bundle.putString(SONG_TITLE, getsongTitle());
+////            bundle.putString(SONG_ALBUM, getsongAlbumName());
+////            bundle.putLong(SONG_ALBUM_ID, getsongAlbumID());
+////            bundle.putString(SONG_ARTIST, getsongArtistName());
+////            bundle.putLong(SONG_ID, getsongId());
+////            bundle.putString(SONG_PATH, getsongData());
+////            bundle.putInt(SONG_TRACK_NUMBER, getsongNumber());
+//            bundle.putInt(POSITION_CHANGED, returnpos());
+//            intent.putExtras(bundle);
+//            Log.d(TAG, "broadcast song metadata");
+//            sendBroadcast(intent);
+//        } else if ((updateServices.equals(QUEUE_CHANGED) || updateServices.equals(ORDER_CHANGED) || updateServices.equals(ITEM_ADDED)) && (intent.getAction().equals(QUEUE_CHANGED) || intent.getAction().equals(ORDER_CHANGED) || intent.getAction().equals(ITEM_ADDED))) {
+//            sendBroadcast(intent);
+////            saveState(true);
+//        }
+//        if (onPlayNotify) {
+////            if (!Extras.getInstance().hideNotify()) {
+//                NotificationGenerator.buildNotification(SimpleMusicService.this, updateServices);
+////            }
+//        }
+    }
+
+    /*
+    For Data retrieve
+     */
+    public String getSongTitle() {
+        if(mSingleTracks == null) {
+            return null;
+        }
+        return mSingleTracks.getTrackName();
+    }
+
+    public String getArtistName() {
+        if(mSingleTracks == null) {
+            return null;
+        }
+        return mSingleTracks.getTrackArtistName();
+    }
+
+
+
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -277,6 +359,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        updateService(META_CHANGED);
         if (fastPlay) {
             play();
             fastPlay = false;
@@ -317,6 +400,64 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
             play();
         }
     }
+
+    /**
+     * BroadCast controls
+     */
+//    private class ControlReceiver extends BroadcastReceiver {
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+//                if (mLostAudioFocus) {
+//                    mLostAudioFocus = false;
+//                }
+//                pause();
+//                Log.d(TAG, "noisyAudio");
+//            } else if (intent.getAction().equals(ACTION_PLAY)) {
+//                play();
+//            } else if (intent.getAction().equals(ACTION_PAUSE)) {
+//                pause();
+//            } else if (intent.getAction().equals(ACTION_NEXT)) {
+//                playnext(true);
+//            } else if (intent.getAction().equals(ACTION_PREVIOUS)) {
+//                playprev(true);
+//            } else if (intent.getAction().equals(ACTION_STOP)) {
+//                stopSelf();
+//            } else if (intent.getAction().equals(ACTION_TOGGLE)) {
+//                toggle();
+//            } else if (intent.getAction().equals(ACTION_CHANGE_STATE)) {
+//                if (widgetPermission) {
+//                    if (!Extras.getInstance().floatingWidget()) {
+//                        audioWidget.show(Extras.getInstance().getwidgetPositionX(), Extras.getInstance().getwidgetPositionY());
+//                    } else {
+//                        audioWidget.hide();
+//                    }
+//                }
+//            } else if (intent.getAction().equals(ACTION_FAV)) {
+//                if (favHelper.isFavorite(Extras.getInstance().getSongId(getsongId()))) {
+//                    favHelper.removeFromFavorites(Extras.getInstance().getSongId(getsongId()));
+//                    updateService(META_CHANGED);
+//                } else {
+//                    favHelper.addFavorite(Extras.getInstance().getSongId(getsongId()));
+//                    updateService(META_CHANGED);
+//                }
+//            } else if (intent.getAction().equals(ACTION_COMMAND)) {
+//                int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+//                musicxWidget.musicxWidgetUpdate(MusicXService.this, appWidgetIds, null);
+//            } else if (intent.getAction().equals(ACTION_COMMAND1)) {
+//                int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+//                musicXwidget4x4.musicxWidgetUpdate(MusicXService.this, appWidgetIds, null);
+//            } else if (intent.getAction().equals(ACTION_COMMAND2)) {
+//                int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+//                musicXWidget5x5.musicxWidgetUpdate(MusicXService.this, appWidgetIds, null);
+//            }
+//        }
+//
+//    }
+
+
+
 
     public class LocalSimpleMusicBinder extends Binder {
         public SimpleMusicService getService() {

@@ -34,5 +34,6 @@
     <color name="tabBackground">#E8E8E8</color>
     <color name="btn_shuffle_gradient_start">#CC157D</color>
     <color name="btn_shuffle_gradient_end">#610099</color>
+    <color name="notification_bg">#212121</color>
 
 </resources>

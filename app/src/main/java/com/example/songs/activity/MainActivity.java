@@ -37,6 +37,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavig
 import com.ncapdevi.fragnav.FragNavController;
 import com.ncapdevi.fragnav.FragNavSwitchController;
 import com.ncapdevi.fragnav.FragNavTransactionOptions;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String MAINACTIVITYTAG = MainActivity.class.getSimpleName();
+    public static final String MAIN_ACTIVITY = MainActivity.class.getSimpleName();
     private boolean mToggleMinPlayerFlag = false;
 
     private static final int INDEX_PHOTOS = 1;
@@ -71,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
     private Drawable mPlayDrawable, mPauseDrawable;
 
     private FragNavTransactionOptions mFragNavTransactionOptions;
+
+    // For Notification
 
     /**
      * @param savedInstanceState
