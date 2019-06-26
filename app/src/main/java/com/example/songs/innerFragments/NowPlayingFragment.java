@@ -36,6 +36,7 @@ import com.example.songs.service.SimpleMusicService;
 
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 
@@ -85,12 +86,33 @@ public class NowPlayingFragment extends Fragment {
         }
     };
 
+    private OnClickListener mRewindClickListener = v -> {
+        mSimpleMusicService.playPrev(true);
+    };
+
+    private OnClickListener mForwardClickListener = v -> {
+        mSimpleMusicService.playNext(true);
+    };
+
     private OnClickListener mPlayPauseClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mSimpleMusicService.toggle();
+            updatePlayPauseImage();
         }
     };
+
+    private void updatePlayPauseImage() {
+        if(mSimpleMusicService != null) {
+            if(mSimpleMusicService.isPlaying()) {
+                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_light));
+                ((MainActivity) getActivity()).playPauseToggle();
+            } else {
+                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_play_light));
+                ((MainActivity) getActivity()).playPauseToggle();
+            }
+        }
+    }
 
     private void reload() {
         playingView();
@@ -173,6 +195,16 @@ public class NowPlayingFragment extends Fragment {
         mForwardIV = view.findViewById(R.id.f_n_p_fast_forward);
         mPlayPauseIV = view.findViewById(R.id.f_n_p_play_pause);
 
+        if(mSimpleMusicService != null) {
+            if(mSimpleMusicService.isPlaying()) {
+                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_light));
+            } else if(mSimpleMusicService.isPaused()) {
+                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_play_light));
+            }
+        }
+
+        mRewindIV.setOnClickListener(mRewindClickListener);
+        mForwardIV.setOnClickListener(mForwardClickListener);
         mPlayPauseIV.setOnClickListener(mPlayPauseClickListener);
 
 

@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_app_songs"
@@ -22,6 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.SignInActivity" />
+
+        <receiver android:name=".reciever.MediaButtonIntentReceiver"/>
+        <receiver android:name=".service.SimpleMusicService$ControlReceiver"/>
 
         <service android:name=".service.MediaPlayerService" />
         <service android:name=".service.SimpleMusicService" />

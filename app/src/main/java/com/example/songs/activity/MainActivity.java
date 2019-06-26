@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    private void playPauseToggle() {
+    public void playPauseToggle() {
         if(mMediaPlayerService != null) {
             if(mMediaPlayerService.isPlaying()) {
                 mPlayPauseBtn.setBackground(mPauseDrawable);
@@ -305,6 +305,13 @@ public class MainActivity extends AppCompatActivity {
             playPauseToggle();
         }
     };
+
+    public void setShufflePlayFromActivity(List<Tracks> mAllShuffleList) {
+        if(mMediaPlayerService == null) {
+            return;
+        }
+        mMediaPlayerService.shufflePlay(mAllShuffleList);
+    }
 
 
     public void playAudio(List<Tracks> tracks, int pos) {

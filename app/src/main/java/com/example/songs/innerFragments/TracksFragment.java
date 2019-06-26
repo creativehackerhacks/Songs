@@ -30,6 +30,7 @@ import com.example.songs.adapters.TrackRecyclerViewAdapter;
 import com.example.songs.archComp.TrackModel;
 import com.example.songs.data.model.Tracks;
 import com.example.songs.interfaces.RecyclerViewSimpleClickListener;
+import com.example.songs.service.SimpleMusicService;
 import com.example.songs.util.UtilConstants;
 import com.example.songs.util.dialogs.LongBottomSheetFragment;
 import com.example.songs.util.dialogs.LongBottomSheetFragment.LongBottomSheetListener;
@@ -179,8 +180,14 @@ public class TracksFragment extends Fragment {
             }
         });
 
+        mShufflePlayButton.setOnClickListener(mShuffleBtnClick);
+
         return view;
     }
+
+    private View.OnClickListener mShuffleBtnClick = v -> {
+        ((MainActivity) getActivity()).setShufflePlayFromActivity(mTrackRecyclerViewAdapter.getAllTrackList());
+    };
 
     private void filter(String text) {
         List<Tracks> temp = new ArrayList();

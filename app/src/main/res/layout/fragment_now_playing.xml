@@ -92,7 +92,7 @@
         app:layout_constraintEnd_toStartOf="@+id/f_n_p_fast_forward"
         app:layout_constraintStart_toEndOf="@+id/f_n_p_fast_rewind"
         app:layout_constraintTop_toBottomOf="@+id/f_n_p_seekbar"
-        app:srcCompat="@drawable/ic_play_circle_white" />
+        app:srcCompat="@drawable/ic_pause_light" />
 
     <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/f_n_p_seekbar"

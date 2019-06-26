@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class UtilConstants {
 
-    private static final String PACKAGENAME = "com.example.songs.";
+    public static final String PACKAGENAME = "com.example.songs.";
 
     // ArrayList for recently played songs
     public static ArrayList<Tracks> mRecentlyPlayedSongs = new ArrayList<>();
