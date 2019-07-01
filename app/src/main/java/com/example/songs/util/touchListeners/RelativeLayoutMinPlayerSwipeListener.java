@@ -32,17 +32,19 @@ public abstract class RelativeLayoutMinPlayerSwipeListener implements OnTouchLis
 //        // activity.doSomething();
 //    }
 
-    public void onTopToBottomSwipe() {
-        Log.i(logTag, "onTopToBottomSwipe!");
-        Toast.makeText(mContext, "onTopToBottomSwipe", Toast.LENGTH_SHORT).show();
-        // activity.doSomething();
-    }
+    public abstract void onTopToBottomSwipe();
+//    {
+//        Log.i(logTag, "onTopToBottomSwipe!");
+//        Toast.makeText(mContext, "onTopToBottomSwipe", Toast.LENGTH_SHORT).show();
+//        // activity.doSomething();
+//    }
 
-    public void onBottomToTopSwipe() {
-        Log.i(logTag, "onBottomToTopSwipe!");
-        Toast.makeText(mContext, "onBottomToTopSwipe", Toast.LENGTH_SHORT).show();
-        // activity.doSomething();
-    }
+    public abstract void onBottomToTopSwipe();
+//    {
+//        Log.i(logTag, "onBottomToTopSwipe!");
+//        Toast.makeText(mContext, "onBottomToTopSwipe", Toast.LENGTH_SHORT).show();
+//        // activity.doSomething();
+//    }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {

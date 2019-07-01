@@ -2,10 +2,12 @@ package com.example.songs.innerFragments;
 
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,9 +23,11 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -65,6 +69,7 @@ public class NowPlayingFragment extends Fragment {
     private TextView mInitialTv, mFinalTv;
     private SeekBar mNPSeekbar;
     private ImageView mRewindIV, mForwardIV, mPlayPauseIV;
+    private NumberPicker mEqualizerNP;
 
     private Long mArtworkTrackId;
 
@@ -75,6 +80,7 @@ public class NowPlayingFragment extends Fragment {
             SimpleMusicService.LocalSimpleMusicBinder binder = (SimpleMusicService.LocalSimpleMusicBinder) service;
             mSimpleMusicService = binder.getService();
             mServiceBound = true;
+            Log.e(NOWPLAYINGFRAGMENT, "onServiceConnected: " + "Service Running");
             if(mSimpleMusicService != null) {
                 reload();
             }
@@ -88,10 +94,14 @@ public class NowPlayingFragment extends Fragment {
 
     private OnClickListener mRewindClickListener = v -> {
         mSimpleMusicService.playPrev(true);
+        setupData();
+        ((MainActivity) getActivity()).setSongData();
     };
 
     private OnClickListener mForwardClickListener = v -> {
         mSimpleMusicService.playNext(true);
+        setupData();
+        ((MainActivity) getActivity()).setSongData();
     };
 
     private OnClickListener mPlayPauseClickListener = new OnClickListener() {
@@ -115,6 +125,7 @@ public class NowPlayingFragment extends Fragment {
     }
 
     private void reload() {
+        setupData();
         playingView();
         seekbarProgress();
     }
@@ -194,23 +205,22 @@ public class NowPlayingFragment extends Fragment {
         mRewindIV = view.findViewById(R.id.f_n_p_fast_rewind);
         mForwardIV = view.findViewById(R.id.f_n_p_fast_forward);
         mPlayPauseIV = view.findViewById(R.id.f_n_p_play_pause);
+        mEqualizerNP = view.findViewById(R.id.f_now_playing_number_picker_equalizer);
 
-        if(mSimpleMusicService != null) {
-            if(mSimpleMusicService.isPlaying()) {
-                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_light));
-            } else if(mSimpleMusicService.isPaused()) {
-                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_play_light));
-            }
-        }
+        mEqualizerNP.setMinValue(0);
+        mEqualizerNP.setMaxValue(3);
+        mEqualizerNP.setDisplayedValues(new String[] {"Jazz", "Rock", "Music", "Bass"});
+
 
         mRewindIV.setOnClickListener(mRewindClickListener);
         mForwardIV.setOnClickListener(mForwardClickListener);
         mPlayPauseIV.setOnClickListener(mPlayPauseClickListener);
 
 
+
         if (getArguments() != null) {
             mTracks = getArguments().getParcelable("TrackFromMainActivity");
-            mSongName.setText(mTracks.getTrackName());
+//            mSongName.setText(mTracks.getTrackName());
             mSongArtistName.setText(mTracks.getTrackArtistName());
 
             Log.e(NOWPLAYINGFRAGMENT, "onCreateView: " + mTracks.getTrackId());
@@ -265,8 +275,21 @@ public class NowPlayingFragment extends Fragment {
         if(getActivity() == null) {
             return;
         }
-        if(mSimpleMusicService != null) {
-            reload();
+        if(!mServiceBound) {
+            Intent intent = new Intent(getActivity(), SimpleMusicService.class);
+            getActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            getActivity().startService(intent);
+            IntentFilter intentFilter = new IntentFilter();
+            try {
+                getActivity().registerReceiver(broadcastReceiver, intentFilter);
+            } catch (Exception e) {
+                // already registered
+            }
+        } else {
+            if(mSimpleMusicService != null) {
+                reload();
+            }
+
         }
         ((MainActivity) getActivity()).mMinPlayer.setVisibility(View.GONE);
         ((MainActivity) getActivity()).hideBottomNavigationView();
@@ -288,13 +311,34 @@ public class NowPlayingFragment extends Fragment {
         getActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
+    private void setupData() {
+        if(mSimpleMusicService != null) {
+
+            mSongName.setText(mSimpleMusicService.getSongTitle());
+
+            if(mSimpleMusicService.isPlaying()) {
+                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_light));
+            } else {
+                mPlayPauseIV.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_play_light));
+            }
+        }
+    }
+
     @Override
     public void onStop() {
         super.onStop();
+        if(getActivity() == null) {
+            return;
+        }
         if(mServiceBound) {
             mSimpleMusicService = null;
             getActivity().unbindService(mServiceConnection);
             mServiceBound = false;
+            try {
+                getActivity().unregisterReceiver(broadcastReceiver);
+            } catch (Exception e) {
+                // already registered
+            }
         }
         ((MainActivity) getActivity()).mMinPlayer.setVisibility(View.VISIBLE);
         ((MainActivity) getActivity()).showBottomNavigationView();
@@ -319,6 +363,15 @@ public class NowPlayingFragment extends Fragment {
             mInitialTv.setText(durationCalculator(position));
         }
     }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(mSimpleMusicService == null) {
+                return;
+            }
+        }
+    };
 
     private SimpleMusicService getSimpleMusicService() {
         return mSimpleMusicService;

@@ -29,12 +29,14 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
     private Uri mArtWorkUri = Uri.parse("content://media/external/audio/albumart");
     private Context mContext;
+    private String filterNullText;
 
     private List<Tracks> mNewTracks = new ArrayList<>();
     private List<Tracks> mAllTracks = new ArrayList<>();
 
     private View.OnClickListener mClickListener;
     private View.OnLongClickListener mLongClickListener;
+    private View.OnClickListener mMoreOptionClickListener;
 
     public TrackRecyclerViewAdapter(Context context) {
         mContext = context;
@@ -88,6 +90,10 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
     public void setOnItemLongClickListener(OnLongClickListener itemLongClickListener) {
         mLongClickListener = itemLongClickListener;
+    }
+
+    public void setOnMoreOptionClickListener(View.OnClickListener moreOptionClickListener) {
+        mMoreOptionClickListener = moreOptionClickListener;
     }
 
     @Override
@@ -152,6 +158,9 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
             itemView.setTag(this);
             itemView.setOnClickListener(mClickListener);
             itemView.setOnLongClickListener(mLongClickListener);
+
+            mMoreOptionIV.setTag(this);
+            mMoreOptionIV.setOnClickListener(mMoreOptionClickListener);
         }
 
         public void bindView(Tracks tracks) {

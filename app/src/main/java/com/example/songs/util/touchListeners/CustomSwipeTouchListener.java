@@ -73,13 +73,10 @@ public abstract class CustomSwipeTouchListener implements OnTouchListener {
 
     public abstract void onSwipeLeft();
 
-    public void onSwipeUp() {
+    public abstract void onSwipeUp();
 
-    }
+    public abstract void onSwipeDown();
 
-    public void onSwipeDown() {
-
-    }
 
     public abstract void onClick();
 

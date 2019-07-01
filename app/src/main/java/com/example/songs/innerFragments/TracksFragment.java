@@ -4,6 +4,7 @@ package com.example.songs.innerFragments;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -34,6 +35,7 @@ import com.example.songs.service.SimpleMusicService;
 import com.example.songs.util.UtilConstants;
 import com.example.songs.util.dialogs.LongBottomSheetFragment;
 import com.example.songs.util.dialogs.LongBottomSheetFragment.LongBottomSheetListener;
+import com.example.songs.util.dialogs.MoreSettingTrackBottomSheet;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -83,6 +85,7 @@ public class TracksFragment extends Fragment {
     private TrackRecyclerViewAdapter mTrackRecyclerViewAdapter;
     private RecyclerViewSimpleClickListener mRecyclerViewSimpleClickListener;
     private List<Tracks> mTracks;
+    private List<Tracks> mQueueTracks = new ArrayList<>();
     private int mCurrentTrackPos;
 
     private int trackLoader = -1;
@@ -208,6 +211,7 @@ public class TracksFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         mTrackRecyclerViewAdapter.setOnItemClickListener(mClickListener);
         mTrackRecyclerViewAdapter.setOnItemLongClickListener(mLongClickListener);
+        mTrackRecyclerViewAdapter.setOnMoreOptionClickListener(mMoreOptionClickListener);
 //        mRecyclerView.setHasFixedSize(true);
     }
 
@@ -215,9 +219,44 @@ public class TracksFragment extends Fragment {
     private View.OnClickListener mMoreOptionClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            Toast.makeText(getContext(), "I AM CLICKING", Toast.LENGTH_SHORT).show();
+            RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) v.getTag();
+            int position = viewHolder.getAdapterPosition();
+            Tracks tracks = mTrackRecyclerViewAdapter.getAllTrackList().get(position);
+
+            showMoreOptionDialog(tracks);
         }
     };
+
+    private void showMoreOptionDialog(Tracks track) {
+        MoreSettingTrackBottomSheet moreSettingTrackBottomSheet = MoreSettingTrackBottomSheet.getInstance();
+        moreSettingTrackBottomSheet.show(getChildFragmentManager(), "More_Option_BottomSheet_Dialog");
+        moreSettingTrackBottomSheet.setMoreSettingTrackBottomSheetListener(new MoreSettingTrackBottomSheet.MoreSettingTrackBottomSheetListener() {
+            @Override
+            public void onButtonClicked(int id) {
+                switch (id) {
+                    case R.id.m_s_t_b_AddToNext:
+                        ((MainActivity) getActivity()).setAsNextTrack(track);
+                        break;
+                    case R.id.m_s_t_b_share_outside:
+                        showExternalShare(track);
+                        default:
+                            Log.e(TRACK_FRAGMENT, "onMoreSetting: " + "Nothing to be clicked");
+                }
+            }
+        });
+    }
+
+    private void showExternalShare(Tracks track) {
+        long id = track.getTrackId();
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Uri trackUri = Uri.parse(uri.toString() + "/" + id);
+        intent.putExtra(Intent.EXTRA_STREAM, trackUri);
+        intent.setType("audio/*");
+        getContext().startActivity(Intent.createChooser(intent, getContext().getString(R.string.share)));
+
+    }
+
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
         @TargetApi(VERSION_CODES.LOLLIPOP)
@@ -236,18 +275,6 @@ public class TracksFragment extends Fragment {
         }
     };
 
-    // Adding and checking the recently played list.
-    private void addTracksToRecentlyPlayedList(Tracks tracks) {
-        if(!UtilConstants.mRecentlyPlayedSongs.contains(tracks)) {
-            if(UtilConstants.mRecentlyPlayedSongs.size() < 20) {
-                UtilConstants.mRecentlyPlayedSongs.add(tracks);
-            } else {
-                int pos = UtilConstants.mRecentlyPlayedSongs.size()-1;
-                UtilConstants.mRecentlyPlayedSongs.remove(pos);
-                UtilConstants.mRecentlyPlayedSongs.add(tracks);
-            }
-        }
-    }
 
     private View.OnLongClickListener mLongClickListener = new OnLongClickListener() {
         @Override
@@ -277,6 +304,23 @@ public class TracksFragment extends Fragment {
             }
         });
     }
+
+
+
+
+    // Adding and checking the recently played list.
+    private void addTracksToRecentlyPlayedList(Tracks tracks) {
+        if(!UtilConstants.mRecentlyPlayedSongs.contains(tracks)) {
+            if(UtilConstants.mRecentlyPlayedSongs.size() < 20) {
+                UtilConstants.mRecentlyPlayedSongs.add(tracks);
+            } else {
+                int pos = UtilConstants.mRecentlyPlayedSongs.size()-1;
+                UtilConstants.mRecentlyPlayedSongs.remove(pos);
+                UtilConstants.mRecentlyPlayedSongs.add(tracks);
+            }
+        }
+    }
+
 
     private void sendSongUriPath(int position) {
         Uri uri = Uri.parse(mTrackRecyclerViewAdapter.getAllTrackList().get(position).getTrackData());

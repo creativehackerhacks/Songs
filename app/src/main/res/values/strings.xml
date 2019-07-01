@@ -28,5 +28,6 @@ The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for t
     <string name="bottomsheet_dialog_send_song_request">Send Song</string>
     <string name="row_profile_list_name">Name</string>
     <string name="row_profile_list_userName">Username</string>
+    <string name="share">Share with</string>
 
 </resources>

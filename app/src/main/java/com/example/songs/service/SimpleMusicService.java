@@ -66,9 +66,10 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     private List<Tracks> mTracksList = new ArrayList<>();
     private List<Tracks> mOgList = new ArrayList<>();
     private List<Tracks> mCheckShuffle = new ArrayList<>();
+    private List<Tracks> mQueueList = new ArrayList<>();
     private Tracks mSingleTracks;
 
-    private boolean isRunning = false;
+    public boolean isRunning = false;
     private boolean isShuffled = false;
     private boolean onPlayNotify = false;
     private boolean paused;
@@ -302,6 +303,21 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
+    public void playPrevSong(boolean torf) {
+        int position = getPrevSongPos(torf);
+        if (position != -1 && position < mTracksList.size()) {
+            paused = false;
+            fastPlay = true;
+            mSingleTracks = mTracksList.get(position);
+            fastPlay(true, mSingleTracks);
+            Log.d(TAG, "playNext: Done");
+        } else {
+            fastPlay = false;
+            paused = true;
+            isRunning = false;
+        }
+    }
+
     public void playPrev(boolean torf) {
         int position = getPrevPos(torf);
         if (position != -1 && position < mTracksList.size()) {
@@ -324,6 +340,11 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
 
     public int getPrevPos(boolean yorn) {
         int pos = returnpos();
+        return pos;
+    }
+
+    public int getPrevSongPos(boolean yorn) {
+        int pos = returnpos()-1;
         return pos;
     }
 
@@ -543,6 +564,13 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
         return mSingleTracks.getTrackArtistName();
     }
 
+    public Tracks getCurrentTrack() {
+        if (mSingleTracks == null) {
+            return null;
+        }
+        return mSingleTracks;
+    }
+
 
 
     @Override
@@ -553,6 +581,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
     @Override
     public void onPrepared(MediaPlayer mp) {
         updateService(META_CHANGED);
+
         if (fastPlay) {
             play();
             fastPlay = false;
@@ -593,6 +622,22 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
             play();
         }
     }
+
+    public void addToQueue(Tracks track) {
+        if(mTracksList.size() > 0 || mTracksList.size() == 0) {
+            mOgList.add(track);
+            mTracksList.add(track);
+        }
+    }
+
+    public void setAsNextTrack(Tracks track) {
+        if(mTracksList.size() > 0 || mTracksList.size() == 0) {
+            mOgList.add(track);
+            mTracksList.add(returnpos() + 1, track);
+        }
+    }
+
+
 
     private final class MyMediaSessionCompatCallback extends MediaSessionCompat.Callback {
         @Override

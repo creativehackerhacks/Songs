@@ -48,7 +48,8 @@
         android:layout_marginEnd="16dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/f_now_playing_number_picker_equalizer"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/f_now_playing_song_artist_name">
 
@@ -61,6 +62,18 @@
             tools:srcCompat="@tools:sample/avatars" />
 
     </androidx.cardview.widget.CardView>
+
+    <NumberPicker
+        android:id="@+id/f_now_playing_number_picker_equalizer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:theme="@style/DefaultNumberPickerTheme"
+        app:layout_constraintBottom_toBottomOf="@+id/f_now_playing_coverArt_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/f_now_playing_coverArt_card" />
 
     <ImageView
         android:id="@+id/f_n_p_fast_rewind"
@@ -92,7 +105,7 @@
         app:layout_constraintEnd_toStartOf="@+id/f_n_p_fast_forward"
         app:layout_constraintStart_toEndOf="@+id/f_n_p_fast_rewind"
         app:layout_constraintTop_toBottomOf="@+id/f_n_p_seekbar"
-        app:srcCompat="@drawable/ic_pause_light" />
+        app:srcCompat="@drawable/ic_play_light" />
 
     <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/f_n_p_seekbar"

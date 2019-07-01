@@ -212,6 +212,9 @@ public class ProfileFragment extends Fragment {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(getActivity() == null) {
+                    return;
+                }
                 if(dataSnapshot.child("userCoverImage").exists()) {
                     String coverImage = dataSnapshot.child("userCoverImage").getValue().toString();
                     Log.e(PROFILE_FRAGMENT, "onDataChange: COVER IMAGE --  " + coverImage);

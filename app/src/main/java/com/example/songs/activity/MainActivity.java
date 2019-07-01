@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,6 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -48,6 +52,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import static com.example.songs.util.UtilConstants.META_CHANGED;
+import static com.example.songs.util.UtilConstants.PLAYSTATE_CHANGED;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -179,11 +186,36 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSwipeRight() {
             Toast.makeText(MainActivity.this, "Swiped Right", Toast.LENGTH_SHORT).show();
+            if(mMediaPlayerService != null)  {
+                mMediaPlayerService.playPrevSong(true);
+                TranslateAnimation animObj= new TranslateAnimation(-120, 0, 0, 0);
+                animObj.setDuration(200);
+                mSongName.startAnimation(animObj);
+                setSongData();
+            }
         }
 
         @Override
         public void onSwipeLeft() {
             Toast.makeText(MainActivity.this, "Swiped Left", Toast.LENGTH_SHORT).show();
+            if(mMediaPlayerService != null) {
+                mMediaPlayerService.playNext(true);
+                TranslateAnimation animObj= new TranslateAnimation(120, 0, 0, 0);
+                animObj.setDuration(200);
+                mSongName.startAnimation(animObj);
+                setSongData();
+            }
+        }
+
+        @Override
+        public void onSwipeUp() {
+        }
+
+        @Override
+        public void onSwipeDown() {
+            if(mMinPlayer.getVisibility() == View.VISIBLE) {
+                mMinPlayer.setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -193,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
             Fragment mPlayingFragment = NowPlayingFragment.newInstance();
             mPlayingFragment.setArguments(bundle);
             pushFragment(mPlayingFragment);
+//            pushPlayingFragment(mPlayingFragment);
         }
     };
 
@@ -240,6 +273,13 @@ public class MainActivity extends AppCompatActivity {
     public void popFragment() {
         mFragNavController.popFragment();
     }
+
+//    public void pushPlayingFragment(Fragment fragment) {
+//        FragNavTransactionOptions customFragNav = FragNavTransactionOptions.Companion.newBuilder()
+//                .customAnimations(R.anim.bottom_up, R.anim.bottom_up)
+//                .build();
+//        mFragNavController.pushFragment(fragment, customFragNav);
+//    }
 
 
     private BottomNavigationView.OnNavigationItemReselectedListener bottomNavItemReselected =
@@ -319,18 +359,49 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         mMediaPlayerService.setTrackList(tracks, pos, true);
-        minPlayerSetup(tracks, pos);
+//        minPlayerSetup(tracks, pos);
+        newMinPlayer();
     }
 
-    private void minPlayerSetup(List<Tracks> tracks, int pos) {
-        mMinPlayer.setVisibility(View.VISIBLE);
-        mSinglePlayScreenTracks = tracks.get(pos);
-        mSongName.setText(tracks.get(pos).getTrackName());
+    public void addToQueue(Tracks track) {
+        if(mMediaPlayerService != null) {
+            mMediaPlayerService.addToQueue(track);
+        }
+    }
+
+    public void setAsNextTrack(Tracks track) {
+        if(mMediaPlayerService != null) {
+            mMediaPlayerService.setAsNextTrack(track);
+        }
+    }
+
+
+
+//    private void minPlayerSetup(List<Tracks> tracks, int pos) {
+//        mMinPlayer.setVisibility(View.VISIBLE);
+//        mSinglePlayScreenTracks = tracks.get(pos);
+//        mSongName.setText(tracks.get(pos).getTrackName());
+//    }
+
+    public void newMinPlayer() {
+        if(mMediaPlayerService != null) {
+            mMinPlayer.setVisibility(View.VISIBLE);
+            setSongData();
+        }
+    }
+
+    public void setSongData() {
+        if(mMediaPlayerService != null) {
+            mSinglePlayScreenTracks = mMediaPlayerService.getCurrentTrack();
+            mSongName.setText(mMediaPlayerService.getSongTitle());
+        }
     }
 
 
     public void toggleMinPlayer() {
         if (mToggleMinPlayerFlag) {
+//            Animation bottomUp = AnimationUtils.loadAnimation(MainActivity.this, R.anim.bottom_up);
+//            mMinPlayer.startAnimation(bottomUp);
             mMinPlayer.setVisibility(View.VISIBLE);
             mToggleMinPlayerFlag = false;
         } else {

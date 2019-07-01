@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:id="@+id/f_tracks_main_layout"
     android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
     tools:artistContext=".activity.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout

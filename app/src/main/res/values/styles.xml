@@ -40,7 +40,7 @@
         <item name="android:textStyle">normal</item>
     </style>
 
-    <!-- LOL -->
+    <!-- For Number Picker Divider Color -->
     <style name="DefaultNumberPickerTheme" parent="AppTheme">
         <item name="colorControlNormal">@color/transparentColor</item>
     </style>
