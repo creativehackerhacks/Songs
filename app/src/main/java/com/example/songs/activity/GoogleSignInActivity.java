@@ -39,14 +39,14 @@ public class GoogleSignInActivity extends AppCompatActivity {
     private GoogleApiClient mGoogleApiClient;
 
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+//    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     private SignInButton mSignInButton;
 
     @Override
     protected void onStart() {
         super.onStart();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+//        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
@@ -61,15 +61,15 @@ public class GoogleSignInActivity extends AppCompatActivity {
         });
 
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mAuthStateListener = new AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser() != null) {
-                    Intent intent = new Intent(GoogleSignInActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }
-            }
-        };
+//        mAuthStateListener = new AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                if(firebaseAuth.getCurrentUser() != null) {
+//                    Intent intent = new Intent(GoogleSignInActivity.this, MainActivity.class);
+//                    startActivity(intent);
+//                }
+//            }
+//        };
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))

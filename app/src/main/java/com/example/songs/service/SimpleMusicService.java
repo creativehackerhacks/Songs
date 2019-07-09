@@ -266,7 +266,7 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
         isRunning = true;
         updateMediaSessionPlaybackState();
         updateMediaSessionMetaData();
-        this.sendBroadcast(mBroadcastIntent);
+//        this.sendBroadcast(mBroadcastIntent);
     }
 
     public void pause() {
@@ -281,7 +281,8 @@ public class SimpleMusicService extends Service implements MediaPlayer.OnPrepare
         updateService(PLAYSTATE_CHANGED);
         paused = true;
         isRunning = false;
-        this.sendBroadcast(mBroadcastIntent);
+        updateService(PLAYSTATE_CHANGED);
+//        this.sendBroadcast(mBroadcastIntent);
     }
 
     private void pauseDrawable() {

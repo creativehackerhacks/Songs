@@ -42,7 +42,7 @@ public class SharedSongAdapter extends RecyclerView.Adapter<SharedSongAdapter.Sh
     @NonNull
     @Override
     public SharedSongAdapter.SharedSongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.row_following_song_uri, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.row_following_song_uri_request, parent, false);
 
         return new SharedSongViewHolder(view);
     }

@@ -8,17 +8,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -28,6 +26,7 @@ import android.widget.Toast;
 import com.example.songs.R;
 import com.example.songs.data.model.Tracks;
 import com.example.songs.innerFragments.NowPlayingFragment;
+import com.example.songs.topFragment.NotificationFragment;
 import com.example.songs.topFragment.ProfileFragment;
 import com.example.songs.topFragment.SettingsFragment;
 import com.example.songs.topFragment.SongsFragment;
@@ -41,7 +40,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavig
 import com.ncapdevi.fragnav.FragNavController;
 import com.ncapdevi.fragnav.FragNavSwitchController;
 import com.ncapdevi.fragnav.FragNavTransactionOptions;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 
 import java.util.ArrayList;
@@ -53,17 +51,15 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import static com.example.songs.util.UtilConstants.META_CHANGED;
-import static com.example.songs.util.UtilConstants.PLAYSTATE_CHANGED;
-
 public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY = MainActivity.class.getSimpleName();
     private boolean mToggleMinPlayerFlag = false;
 
-    private static final int INDEX_PHOTOS = 1;
-    private static final int INDEX_TRENDINGS = 2;
-    private static final int INDEX_COLLECTIONS = 3;
+    private static final int INDEX_SONGS = 1;
+    private static final int INDEX_PROFILES = 2;
+    private static final int INDEX_NOTIFICATIONS = 3;
+    public static final int INDEX_SETTINGS = 4;
     private static final String Broadcast_PLAY_NEW_AUDIO = "com.example.songs.PlayNewAudio";
 
     private List<Fragment> mFragmentList;
@@ -243,14 +239,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                     switch (menuItem.getItemId()) {
-                        case R.id.navigation_photos:
+                        case R.id.navigation_songs:
                             mFragNavController.switchTab(FragNavController.TAB1, FragNavTransactionOptions.Companion.newBuilder().transition(FragmentTransaction.TRANSIT_NONE).build());
                             return true;
-                        case R.id.navigation_trendings:
+                        case R.id.navigation_profiles:
                             mFragNavController.switchTab(FragNavController.TAB2, FragNavTransactionOptions.Companion.newBuilder().transition(FragmentTransaction.TRANSIT_NONE).build());
                             return true;
-                        case R.id.navigation_collections:
+                        case R.id.navigation_notifications:
                             mFragNavController.switchTab(FragNavController.TAB3, FragNavTransactionOptions.Companion.newBuilder().transition(FragmentTransaction.TRANSIT_NONE).build());
+                            return true;
+                        case R.id.navigation_settings:
+                            mFragNavController.switchTab(FragNavController.TAB4, FragNavTransactionOptions.Companion.newBuilder().transition(FragmentTransaction.TRANSIT_NONE).build());
                             return true;
                         default:
                             return false;
@@ -304,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeFragmentList() {
         mFragmentList.add(SongsFragment.newInstance());
         mFragmentList.add(ProfileFragment.newInstance());
+        mFragmentList.add(NotificationFragment.newInstance());
         mFragmentList.add(SettingsFragment.newInstance());
 
         mFragNavController.setRootFragments(mFragmentList);
@@ -343,6 +343,13 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             playPauseToggle();
+            Log.e(MAIN_ACTIVITY, "onReceive: " + "From BROADCAST");
+//            String action = intent.getAction();
+//            if(action.equals(PLAYSTATE_CHANGED)) {
+//                playPauseToggle();
+//            } else if(action.equals(META_CHANGED)) {
+//                setSongData();
+//            }
         }
     };
 
